@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión - Danieladas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <style>
+    body {
+      background-image: url("img/fondo.png"); /* 🖼️ Imagen de fondo */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9); /* Transparencia */
+      border-radius: 20px;
+      padding: 30px 25px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 330px;
+      backdrop-filter: blur(6px); /* Suave desenfoque */
+    }
+
+    .logo {
+      width: 130px;
+      display: block;
+        border-radius: 25%;
+      margin: 0 auto 15px auto; /* Centrado */
+    }
+
+    h5 {
+      color: #d94c7c;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      background-color: #ffe3f3;
+      border: none;
+      border-radius: 25px;
+      margin-bottom: 15px;
+      padding: 10px;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .form-control:focus {
+      box-shadow: 0 0 5px #ff9fd6;
+    }
+
+    .btn {
+      background-color: #ff9fd6;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      width: 100%;
+      padding: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #ff7fbd;
+      transform: translateY(-2px);
+    }
+
+    a {
+      color: #e22b5a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="img/logo.png" alt="Danieladas Logo" class="logo" />
+    <h5>Iniciar sesión</h5>
+
+    <input type="text" class="form-control" placeholder="Usuario" id="usuario" />
+    <input type="password" class="form-control" placeholder="Contraseña" id="password" />
+
+    <button class="btn mt-2" onclick="iniciarSesion()">Iniciar sesión</button>
+
+    <p class="mt-3">
+      ¿No tienes cuenta? <a href="registro.html">Regístrate</a>
+    </p>
+  </div>
+
+  <script>
+    function iniciarSesion() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!usuario || !password) {
+        alert("Por favor, completa todos los campos 🍦");
+        return;
+      }
+
+      // Aquí conectarás tu API:
+      // fetch('https://tuapi.com/login', { method:'POST', body: JSON.stringify({usuario, password}) })
+
+      alert("Inicio de sesión exitoso 🩷");
+      window.location.href = "productos.html";
+    }
+  </script>
+</body>
+</html>

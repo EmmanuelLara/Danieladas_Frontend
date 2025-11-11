@@ -1,0 +1,121 @@
+.pastel-bg {
+  background: linear-gradient(135deg, #fbe4e4 0%, #e4fbe8 100%);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.contenedor-card {
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+  border: 3px solid transparent;
+}
+
+.contenedor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.contenedor-card.selected {
+  border: 3px solid #ff758c;
+  background-color: rgba(255, 117, 140, 0.1);
+}
+
+.tamanos {
+  margin-top: 15px;
+}
+
+.tamano-btn {
+  border: 2px solid #ff758c;
+  color: #ff758c;
+  background: transparent;
+  border-radius: 25px;
+  padding: 8px 15px;
+  margin: 5px;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.tamano-btn:hover {
+  background: #ff758c;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.tamano-btn.selected {
+  background: #ff758c;
+  color: white;
+  box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
+}
+
+.btn-pastel {
+  background-color: #ff758c;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-pastel:hover {
+  background-color: #ff5a7a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 117, 140, 0.4);
+}
+
+/* Navegación inferior */
+.bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.nav-link {
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 15px;
+  color: #666;
+  transition: all 0.3s;
+  border-radius: 10px;
+}
+
+.nav-link.active {
+  color: #ff758c;
+}
+
+.nav-link i {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.nav-link span {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.card-body h5 {
+  margin: 15px 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.display-1 {
+  font-size: 4rem;
+  margin-bottom: 10px;
+}
+body {
+    background: #f0f0f0 url('../img/fondo.png') ;}

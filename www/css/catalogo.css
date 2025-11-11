@@ -1,0 +1,55 @@
+.pastel-bg {
+  background-image: url('../img/fondo.png');
+  min-height: 100vh;
+  padding-bottom: 80px; /* espacio para la navbar */
+}
+
+.catalogo-header {
+  text-align: center;
+  padding: 30px 10px 10px;
+}
+
+.catalogo-title {
+  color: #d46a6a;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.catalogo-subtitle {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 20px;
+}
+
+.categorias-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 0 15px;
+}
+
+.categoria-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  padding: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.categoria-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.categoria-card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.categoria-card h3 {
+  margin-top: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
