@@ -68,7 +68,6 @@
       transform: translateY(-2px);
     }
 
-    /* Sección de pedidos */
     .pedidos-container {
       background: rgba(255,255,255,0.9);
       border-radius: 15px;
@@ -113,13 +112,13 @@
   <!-- PERFIL -->
   <div class="perfil-card">
     <img src="img/usuario.png" alt="Foto de perfil" class="perfil-img">
-    <h4 id="nombreUsuario">Usuario Ejemplo</h4>
-    <p class="text-muted">@usuario123</p>
+    <h4 id="nombreUsuario">Cargando...</h4>
+    <p class="text-muted" id="username">@...</p>
 
     <div class="user-info mt-3">
-      <p><i class="bi bi-envelope-fill text-danger"></i> correo@ejemplo.com</p>
-      <p><i class="bi bi-geo-alt-fill text-danger"></i> Ciudad de México</p>
-      <p><i class="bi bi-calendar-heart text-danger"></i> Cliente desde: 2025</p>
+      <p id="correo"><i class="bi bi-envelope-fill text-danger"></i> Cargando...</p>
+      <p id="ciudad"><i class="bi bi-geo-alt-fill text-danger"></i> Cargando...</p>
+      <p id="registro"><i class="bi bi-calendar-heart text-danger"></i> Cargando...</p>
     </div>
 
     <button class="btn-pink" onclick="editarPerfil()"><i class="bi bi-pencil-fill"></i> Editar Perfil</button>
@@ -151,57 +150,86 @@
         <span>Cuenta</span>
     </button>
   </nav>
-
+<!-- ORDEN CORRECTO DE SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/proteger.js"></script>
   <script src="js/main.js"></script>
+ 
+
   <script>
-    function editarPerfil() {
-      alert("Función de edición próximamente 💅");
+    const API = "http://localhost:3000"; // AJUSTA tu URL si usas hosting
+
+    async function cargarPerfil() {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(`${API}/usuario/perfil`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        document.getElementById("nombreUsuario").textContent = data.nombre;
+        document.getElementById("username").textContent = "@" + data.usuario;
+        document.getElementById("correo").innerHTML = `<i class="bi bi-envelope-fill text-danger"></i> ${data.correo}`;
+        document.getElementById("ciudad").innerHTML = `<i class="bi bi-geo-alt-fill text-danger"></i> ${data.ciudad ?? "Sin especificar"}`;
+        document.getElementById("registro").innerHTML = `<i class="bi bi-calendar-heart text-danger"></i> Cliente desde: ${data.fechaRegistro?.split("T")[0]}`;
+      } 
+      catch (err) {
+        console.error("Error cargando perfil", err);
+      }
+    }
+
+    async function cargarPedidos() {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(`${API}/pedidos/mios`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const pedidos = await res.json();
+        const cont = document.getElementById("listaPedidos");
+
+        if (pedidos.length === 0) {
+          cont.innerHTML = `<p class="text-center text-muted">No tienes pedidos aún 🍧</p>`;
+          return;
+        }
+
+        pedidos.forEach(p => {
+          const productosHTML = p.productos.map(prod => `
+            <p>- ${prod.nombre} (${prod.precio} MXN)</p>
+          `).join("");
+
+          cont.innerHTML += `
+            <div class="pedido-card">
+              <div class="pedido-header">Ticket #${p._id}</div>
+              <div class="pedido-detalle">
+                <p><strong>Fecha:</strong> ${p.fecha.split("T")[0]}</p>
+                <p><strong>Total:</strong> $${p.total} MXN</p>
+                <p><strong>Estado:</strong> <span class="estado">${p.estado}</span></p>
+                <div>${productosHTML}</div>
+              </div>
+            </div>
+          `;
+        });
+
+      } catch (err) {
+        console.error("Error cargando pedidos", err);
+      }
     }
 
     function cerrarSesion() {
       if (confirm("¿Seguro que deseas cerrar sesión? 🍦")) {
         localStorage.removeItem("usuario");
-        alert("Sesión cerrada correctamente 🩷");
+        localStorage.removeItem("token");
         window.location.href = "login.html";
       }
     }
 
-    // Cargar pedidos desde localStorage
-    document.addEventListener("DOMContentLoaded", () => {
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
-      if (usuario) {
-        document.getElementById("nombreUsuario").textContent = usuario.nombre || "Usuario";
-      }
-
-      const pedidos = JSON.parse(localStorage.getItem("misPedidos")) || [];
-      const contenedor = document.getElementById("listaPedidos");
-
-      if (pedidos.length === 0) {
-        contenedor.innerHTML = `<p class="text-center text-muted">No tienes pedidos aún 🍧</p>`;
-        return;
-      }
-
-      pedidos.forEach(p => {
-        let productosHTML = p.productos.map(prod => `
-          <p>- ${prod.tipo} ${prod.tamano || ""} (${prod.precio} MXN)</p>
-        `).join("");
-
-        const estadoClase = p.estado.includes("Entregado") ? "estado entregado" : "estado";
-
-        const pedidoHTML = `
-          <div class="pedido-card">
-            <div class="pedido-header">Ticket #${p.id}</div>
-            <div class="pedido-detalle">
-              <p><strong>Fecha:</strong> ${p.fecha}</p>
-              <p><strong>Total:</strong> $${p.total.toFixed(2)} MXN</p>
-              <p><strong>Estado:</strong> <span class="${estadoClase}">${p.estado}</span></p>
-              <div>${productosHTML}</div>
-            </div>
-          </div>
-        `;
-        contenedor.innerHTML += pedidoHTML;
-      });
-    });
+    cargarPerfil();
+    cargarPedidos();
   </script>
 
 </body>

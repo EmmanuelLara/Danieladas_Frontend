@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   infoSeleccion.textContent = `Has elegido un ${seleccion.tipo.toUpperCase()} ${seleccion.tamano} ($${seleccion.precio})`;
 
-  // Sabores con color
+  // Sabores con color (LOCAL)
   const saboresPorContenedor = {
     vaso: [
       { nombre: "Vainilla", color: "#fff0b3" },
@@ -28,14 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
       { nombre: "Chocolate", color: "#8b4513" },
       { nombre: "Napolitano", color: "#f0b6a4" },
       { nombre: "Galleta", color: "#f7e3c1" },
-     { nombre: "Fresa", color: "#ffb6c1" },
+      { nombre: "Fresa", color: "#ffb6c1" },
       { nombre: "Mango", color: "#ffcc33" },
       { nombre: "Nuez", color: "#deb887" },
       { nombre: "Pistache", color: "#93c572" },
       { nombre: "Chocolate Blanco", color: "#fff8dc" },
       { nombre: "Coco", color: "#f5f5dc" }
-
-
     ],
     canasta: [
       { nombre: "Fresa", color: "#ffb6c1" },
@@ -48,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ]
   };
 
-  // Límite de sabores según tamaño
   const limiteSabores = {
     "Pequeño": 2,
     "Mediano": 3,
@@ -63,27 +60,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const maxSabores = limiteSabores[seleccion.tamano] || 2;
   let saboresSeleccionados = [];
 
-  // Crear tarjetas
-sabores.forEach(sabor => {
-  const col = document.createElement("div");
-  col.className = "col-6 col-md-4 col-lg-3";
-  col.innerHTML = `
-    <div class="sabor-card text-center">
-      <div class="color-preview" style="
-        background-color: ${sabor.color};
-        border: 2px solid #bdbdbd;
-        box-shadow: 0 0 6px rgba(0,0,0,0.15);
-        border-radius: 10px;
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 8px;
-      "></div>
-      <div class="p-2">
-        <h6>${sabor.nombre}</h6>
+  sabores.forEach(sabor => {
+    const col = document.createElement("div");
+    col.className = "col-6 col-md-4 col-lg-3";
+    col.innerHTML = `
+      <div class="sabor-card text-center">
+        <div class="color-preview" style="
+          background-color: ${sabor.color};
+          border: 2px solid #bdbdbd;
+          box-shadow: 0 0 6px rgba(0,0,0,0.15);
+          border-radius: 10px;
+          width: 80px;
+          height: 80px;
+          margin: 0 auto 8px;
+        "></div>
+        <div class="p-2">
+          <h6>${sabor.nombre}</h6>
+        </div>
       </div>
-    </div>
-  `;
-
+    `;
 
     const card = col.querySelector(".sabor-card");
     card.addEventListener("click", () => seleccionarSabor(card, sabor.nombre));
@@ -95,11 +90,9 @@ sabores.forEach(sabor => {
     const yaSeleccionado = saboresSeleccionados.includes(sabor);
 
     if (yaSeleccionado) {
-      // Si ya estaba, quitarlo
       saboresSeleccionados = saboresSeleccionados.filter(s => s !== sabor);
       card.classList.remove("selected");
     } else {
-      // Si no estaba, agregarlo (solo si no se pasa del límite)
       if (saboresSeleccionados.length < maxSabores) {
         saboresSeleccionados.push(sabor);
         card.classList.add("selected");

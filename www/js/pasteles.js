@@ -1,17 +1,40 @@
-  document.addEventListener("DOMContentLoaded", () => {
-      const pasteles = [
-        { nombre: "Pastel de Chocolate", sabor: "Chocolate", tipo: "Rebanada", precio: 40, imagen: "img/pastel_chocolate.png" },
-        { nombre: "Pastel Tres Leches", sabor: "Tres Leches", tipo: "Rebanada", precio: 45, imagen: "img/pastel_tresleches.png" },
-        { nombre: "Pastel Fresa con Crema", sabor: "Fresa", tipo: "Rebanada", precio: 42, imagen: "img/pastel_fresa.png" },
-        { nombre: "Pastel de Zanahoria", sabor: "Zanahoria", tipo: "Rebanada", precio: 45, imagen: "img/pastel_zanahoria.png" },
-        { nombre: "Pastel de Moka", sabor: "Moka", tipo: "Rebanada", precio: 50, imagen: "img/pastel_moka.png" },
-        { nombre: "Pastel de Vainilla", sabor: "Vainilla", tipo: "Rebanada", precio: 38, imagen: "img/pastel_vainilla.png" }
-      ];
+let pasteles = [];
 
-      const contenedor = document.getElementById("pasteles-list");
-      pasteles.forEach((p, i) => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await cargarCatalogo();
+    renderizarPasteles();
+});
+
+// ===============================
+// 📡 CARGAR CATALOGO DESDE API
+// ===============================
+async function cargarCatalogo() {
+    try {
+        const r = await api.get("/catalogo");
+        console.log("📦 Catalogo cargado:", r.data);
+
+        // Asegurar que existan
+        pasteles = r.data.pasteles || [];
+
+        console.log("🍰 Pasteles:", pasteles);
+
+    } catch (error) {
+        console.error("❌ Error cargando catálogo:", error);
+        alert("Error al cargar pasteles.");
+    }
+}
+
+// ===============================
+// 🎂 RENDERIZAR PASTELES
+// ===============================
+function renderizarPasteles() {
+    const contenedor = document.getElementById("pasteles-list");
+    contenedor.innerHTML = "";
+
+    pasteles.forEach((p, i) => {
         const div = document.createElement("div");
         div.className = "col-6";
+        
         div.innerHTML = `
           <div class="pastel-card" onclick="agregarAlCarrito(${i})">
             <img src="${p.imagen}" alt="${p.nombre}" class="pastel-img">
@@ -20,20 +43,33 @@
             <p class="pastel-precio">$${p.precio}</p>
           </div>
         `;
+        
         contenedor.appendChild(div);
-      });
-
-      window.agregarAlCarrito = (i) => {
-        const producto = pasteles[i];
-        let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-        carrito.push({
-          tipo: "Pastel",
-          tamano: producto.tipo,
-          sabores: [producto.sabor],
-          precio: producto.precio,
-          cantidad: 1
-        });
-        localStorage.setItem("carrito", JSON.stringify(carrito));
-        alert(`🍰 ${producto.nombre} agregado al carrito`);
-      };
     });
+}
+
+// ===============================
+// 🛒 AGREGAR AL CARRITO
+// ===============================
+window.agregarAlCarrito = (i) => {
+
+    const p = pasteles[i];
+
+    const producto = {
+        tipo: "Pastel",
+        nombre: p.nombre,
+        tamano: p.tipo,
+        sabores: [p.sabor],
+        cantidad: 1,
+        precio: p.precio,
+        imagen: p.imagen
+    };
+
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    carrito.push(producto);
+
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+
+    alert(`🍰 ${p.nombre} agregado al carrito`);
+};

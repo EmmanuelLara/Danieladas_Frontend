@@ -53,3 +53,47 @@
   color: #333;
   font-size: 1.1rem;
 }
+
+/* ----------------------------- */
+/*      AJUSTES PARA TABLET      */
+/* ----------------------------- */
+@media (min-width: 768px) {
+  .categorias-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .categoria-card {
+    padding: 8px;
+  }
+
+  .categoria-card img {
+    width: 90%;
+  }
+
+  .categoria-card h3 {
+    font-size: 1rem;
+  }
+}
+
+/* ----------------------------- */
+/*      AJUSTES PARA LAPTOP      */
+/* ----------------------------- */
+@media (min-width: 1024px) {
+  .categorias-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+  }
+
+  .categoria-card {
+    padding: 6px;
+  }
+
+  .categoria-card img {
+    width: 85%;
+  }
+
+  .categoria-card h3 {
+    font-size: 0.9rem;
+  }
+}

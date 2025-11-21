@@ -1,11 +1,11 @@
 // main.js
 
-// Función para volver atrás
+// Volver atrás
 function goBack() {
     window.history.back();
 }
 
-// Función para seleccionar categoría
+// Seleccionar categoría
 function selectCategory(category) {
     switch(category) {
         case 'Nieves':
@@ -23,16 +23,15 @@ function selectCategory(category) {
     }
 }
 
-// Navegación inferior con active
+// Navegación inferior
 function navigateTo(page) {
-    // Actualizar clase active
-   
-    // Actualizar clase active
-    document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-    const button = document.querySelector(`.nav-link[data-page="${page}"]`);
-    if(button) button.classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(btn => 
+        btn.classList.remove('active')
+    );
 
-    // Redirigir
+    const button = document.querySelector(`.nav-link[data-page="${page}"]`);
+    if (button) button.classList.add('active');
+
     switch(page) {
         case 'inicio':
             window.location.href = 'index.html';
@@ -48,12 +47,15 @@ function navigateTo(page) {
             break;
     }
 }
-// Animación de entrada para tarjetas
+
+// Animación
 document.addEventListener('DOMContentLoaded', () => {
     const cards = document.querySelectorAll('.categoria-card-mobile');
+    
     cards.forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
+
         setTimeout(() => {
             card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
             card.style.opacity = '1';
@@ -61,5 +63,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100 * index);
     });
 });
-
-

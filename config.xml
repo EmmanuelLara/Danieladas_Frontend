@@ -1,11 +1,29 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.neveria.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>NeveriaApp</name>
-    <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
-    </author>
-    <content src="index.html" />
-    <allow-intent href="http://*/*" />
-    <allow-intent href="https://*/*" />
+<widget id="com.danieladas.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>Danieladas</name>
+  <description>App de pedidos para Danieladas</description>
+  <author email="tuemail@ejemplo.com" href="https://tusitio.com">Tu nombre</author>
+
+  <!-- 🔹 Líneas importantes -->
+  <access origin="*" />
+  <allow-navigation href="*" />
+
+  <content src="index.html" />
+  <preference name="SplashScreenDelay" value="0" />
+  <preference name="FadeSplashScreen" value="false" />
+  <preference name="ShowSplashScreenSpinner" value="false" />
+  <preference name="SplashScreen" value="none" />
+
+  <plugin name="cordova-plugin-whitelist" version="1" />
+
+  <platform name="android">
+    <allow-intent href="market:*" />
+  </platform>
+
+  <feature name="Whitelist">
+    <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+  </feature>
+
+  <allow-intent href="http://*/*" />
+  <allow-intent href="https://*/*" />
 </widget>
