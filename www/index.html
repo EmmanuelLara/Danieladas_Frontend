@@ -129,6 +129,8 @@
 <script src="js/proteger.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        verificarSesion(); // <--- PROTECCIÓN AGREGADA
+        
         const usuario = JSON.parse(localStorage.getItem("usuario"));
         const nav = document.querySelector(".bottom-navbar");
 

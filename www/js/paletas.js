@@ -46,7 +46,7 @@ function generarSeccion(id, lista) {
 
         card.innerHTML = `
             <div class="paleta-card">
-                <div class="color-preview" style="background-color: ${paleta.color || "#ddd"}"></div>
+             <div class="color-preview" style="background-color: ${paleta.color}">  </div>
                 <h5>${paleta.nombre}</h5>
                 <p class="text-muted">$${paleta.precio}.00 MXN</p>
 

@@ -53,7 +53,3 @@ function selectCategory(cat) {
 
 // ===============================
 // 🔵 Navegación inferior
-// ===============================
-function navigateTo(page) {
-    window.location.href = `${page}.html`;
-}

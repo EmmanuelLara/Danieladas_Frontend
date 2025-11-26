@@ -11,16 +11,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function cargarCatalogo() {
     try {
         const r = await api.get("/catalogo");
-        console.log("📦 Catalogo cargado:", r.data);
 
-        // Asegurar que existan
         pasteles = r.data.pasteles || [];
 
-        console.log("🍰 Pasteles:", pasteles);
-
     } catch (error) {
-        console.error("❌ Error cargando catálogo:", error);
         alert("Error al cargar pasteles.");
+        console.error(error);
     }
 }
 
@@ -32,19 +28,19 @@ function renderizarPasteles() {
     contenedor.innerHTML = "";
 
     pasteles.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "col-6";
-        
-        div.innerHTML = `
-          <div class="pastel-card" onclick="agregarAlCarrito(${i})">
-            <img src="${p.imagen}" alt="${p.nombre}" class="pastel-img">
-            <h5 class="pastel-title mt-2">${p.nombre}</h5>
-            <p class="text-muted mb-1">${p.tipo} - ${p.sabor}</p>
-            <p class="pastel-precio">$${p.precio}</p>
-          </div>
+        const tarjeta = document.createElement("div");
+      tarjeta.className = "col-12 col-sm-6 col-lg-4";
+
+        tarjeta.innerHTML = `
+            <div class="pastel-card" onclick="agregarAlCarrito(${i})">
+                <img src="http://localhost:3000/uploads/${p.imagen}" class="pastel-img">
+                <h5 class="pastel-title mt-2">${p.nombre}</h5>
+                <p class="text-muted mb-1">${p.descripcion}</p>
+                <p class="pastel-precio">$${p.precioRebanada} por rebanada</p>
+            </div>
         `;
-        
-        contenedor.appendChild(div);
+
+        contenedor.appendChild(tarjeta);
     });
 }
 
@@ -52,21 +48,17 @@ function renderizarPasteles() {
 // 🛒 AGREGAR AL CARRITO
 // ===============================
 window.agregarAlCarrito = (i) => {
-
     const p = pasteles[i];
 
     const producto = {
         tipo: "Pastel",
         nombre: p.nombre,
-        tamano: p.tipo,
-        sabores: [p.sabor],
         cantidad: 1,
-        precio: p.precio,
+        precio: p.precioRebanada,
         imagen: p.imagen
     };
 
     let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
     carrito.push(producto);
 
     localStorage.setItem("carrito", JSON.stringify(carrito));

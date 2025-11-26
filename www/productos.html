@@ -50,34 +50,35 @@
       </div>
     </div>
   </div>
+   <nav class="bottom-navbar">
+        <button class="nav-link" onclick="navigateTo('inicio')">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Inicio</span>
+        </button>
 
-  <nav class="bottom-navbar">
-    <button class="nav-link" data-page="inicio" onclick="navigateTo('inicio')">
-        <i class="bi bi-house-door-fill"></i>
-        <span>Inicio</span>
-    </button>
-    
-    <button class="nav-link" data-page="productos" onclick="navigateTo('productos')">
-        <i class="bi fa-ice-cream"></i>
-        <span>Productos</span>
-    </button>
-    
-    <button class="nav-link" data-page="carrito" onclick="navigateTo('carrito')">
-        <i class="bi bi-cart-fill"></i>
-        <span>Carrito</span>
-    </button>
-    
-    <button class="nav-link" data-page="cuenta" onclick="navigateTo('cuenta')">
-        <i class="bi bi-person-fill"></i>
-        <span>Cuenta</span>
-    </button>
-  </nav>
+        <button class="nav-link" onclick="navigateTo('productos')">
+            <i class="fa-solid fa-ice-cream"></i>
+            <span>Productos</span>
+        </button>
+
+        <button class="nav-link" onclick="navigateTo('carrito')">
+            <i class="bi bi-cart-fill"></i>
+            <span>Carrito</span>
+        </button>
+
+        <button class="nav-link" onclick="navigateTo('cuenta')">
+            <i class="bi bi-person-fill"></i>
+            <span>Cuenta</span>
+        </button>
+    </nav>
 
   <!-- ORDEN CORRECTO DE SCRIPTS -->
+   <script src="js/main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="js/api.js"></script>
 <script src="js/proteger.js"></script>
-<script src="js/main.js"></script>
+<script>verificarSesion();</script>
+
 <script src="js/categoria.js"></script>
 
 </body>

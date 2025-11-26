@@ -10,36 +10,69 @@
 
   <link rel="stylesheet" href="css/nav.css">
   <style>
-    body {
-      background-image: url('img/fondo.png');
-      background-size: cover;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .pastel-card {
-      background: #fff9f9;
-      border-radius: 15px;
-      padding: 15px;
-      box-shadow: 0 4px 10px rgba(255, 154, 162, 0.2);
-      transition: transform 0.2s;
-      cursor: pointer;
-    }
-    .pastel-card:hover {
-      transform: scale(1.05);
-    }
-    .pastel-img {
-      width: 100%;
-      border-radius: 12px;
-      height: 150px;
-      object-fit: cover;
-    }
-    .pastel-title {
-      font-weight: bold;
-      color: #5a3e36;
-    }
-    .pastel-precio {
-      color: #ff7b86;
-      font-weight: bold;
-    }
+body {
+  background-image: url('img/fondo.png');
+  background-size: cover;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* === AJUSTES DE DISEÑO RESPONSIVO Y ALTURA UNIFORME === */
+
+/* Habilitar Flexbox en el contenedor de pasteles para asegurar alturas iguales */
+#pasteles-list {
+  display: flex;
+  flex-wrap: wrap; 
+}
+
+/* Tarjetas más compactas */
+.pastel-card {
+  background: #fff9f9;
+  border-radius: 12px;
+  padding: 15px; /* Más espacio interior */
+  box-shadow: 0 4px 10px rgba(255, 154, 162, 0.2);
+  transition: transform 0.2s;
+  cursor: pointer;
+  
+  /* Hace que la tarjeta ocupe toda la altura de su columna */
+  height: 100%; 
+  display: flex;
+  flex-direction: column; /* Organiza el contenido verticalmente */
+}
+
+.pastel-card:hover {
+  transform: scale(1.03);
+}
+
+.pastel-img {
+  width: 100%;
+  border-radius: 10px;
+  height: 150px; /* Altura mejorada para la imagen */
+  object-fit: cover;
+}
+
+.container {
+  padding-top: 10px !important;
+  padding-bottom: 100px !important;
+}
+
+.pastel-title {
+  font-weight: bold;
+  color: #5a3e36;
+}
+
+/* La descripción usa el espacio necesario */
+.pastel-card .text-muted {
+  margin-bottom: 8px;
+}
+
+/* Empuja el precio al final de la tarjeta para mantener alineación */
+.pastel-precio {
+  color: #ff7b86;
+  font-weight: bold;
+  margin-top: auto; /* Propiedad clave para empujar al final en Flexbox */
+}
+
+
   </style>
 </head>
 
@@ -49,8 +82,7 @@
     <p class="text-center text-muted">Elige el sabor que más te guste</p>
 
     <div class="row g-4" id="pasteles-list">
-      <!-- Se generan los pasteles con JS -->
-    </div>
+          </div>
 
     <div class="text-center mt-4">
       <a href="carrito.html" class="btn btn-pastel btn-lg">Ver Carrito 🛒</a>
@@ -78,6 +110,7 @@
         <span>Cuenta</span>
     </button>
 </nav>
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="js/api.js"></script>
   <script src="js/pasteles.js">
@@ -86,6 +119,7 @@
 
   <script src="js/main.js"></script>
   <script src="js/proteger.js"></script>
+  <script>verificarSesion();</script>
 
 </body>
 </html>

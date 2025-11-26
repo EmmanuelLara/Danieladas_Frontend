@@ -105,13 +105,9 @@
   <!-- Librería para generar PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+  <script src="js/proteger.js"></script>
   <script>
-      const token = localStorage.getItem("token");
-
-  if (!token) {
-    // Si NO hay token → mandarlo al login
-    window.location.href = "login.html";
-  }
+      verificarSesion();
     const pedido = JSON.parse(localStorage.getItem("pedidoActual"));
 
     if (!pedido) {
