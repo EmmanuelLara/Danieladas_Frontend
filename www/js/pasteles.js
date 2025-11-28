@@ -28,12 +28,13 @@ function renderizarPasteles() {
     contenedor.innerHTML = "";
 
     pasteles.forEach((p, i) => {
+        if (p.disponible === false) return;
         const tarjeta = document.createElement("div");
       tarjeta.className = "col-12 col-sm-6 col-lg-4";
 
         tarjeta.innerHTML = `
             <div class="pastel-card" onclick="agregarAlCarrito(${i})">
-                <img src="http://localhost:3000/uploads/${p.imagen}" class="pastel-img">
+                <img src="${API_URL}/uploads/${p.imagen}" class="pastel-img">
                 <h5 class="pastel-title mt-2">${p.nombre}</h5>
                 <p class="text-muted mb-1">${p.descripcion}</p>
                 <p class="pastel-precio">$${p.precioRebanada} por rebanada</p>

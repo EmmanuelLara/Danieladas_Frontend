@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión de Productos - Danieladas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="js/api.js"></script>
+
+  <style>
+    body {
+      background-image: url("img/fondo.png");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding-bottom: 80px;
+    }
+
+    .glass-container {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #d94c7c;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* Tabs personalizados */
+    .nav-pills .nav-link {
+      color: #d94c7c;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 1px solid #ffe3f3;
+      margin: 0 5px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .nav-pills .nav-link.active {
+      background-color: #ff9fd6;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(255, 159, 214, 0.4);
+    }
+
+    .nav-pills .nav-link:hover:not(.active) {
+      background-color: #ffe3f3;
+    }
+
+    /* Tarjetas de productos */
+    .product-card {
+      border: none;
+      border-radius: 15px;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(217, 76, 124, 0.15);
+    }
+
+    .product-img {
+      height: 150px;
+      object-fit: cover;
+      width: 100%;
+      background-color: #f8f9fa;
+    }
+
+    .product-body {
+      padding: 15px;
+    }
+
+    .product-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+
+    .product-price {
+      color: #d94c7c;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .badge-stock {
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 15px;
+    }
+
+    .bg-available { background-color: #d1e7dd; color: #0f5132; }
+    .bg-unavailable { background-color: #f8d7da; color: #842029; }
+
+    /* Botón flotante para agregar */
+    .fab-add {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #d94c7c;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 15px rgba(217, 76, 124, 0.4);
+      cursor: pointer;
+      z-index: 100;
+      transition: transform 0.3s;
+    }
+
+    .fab-add:hover {
+      transform: scale(1.1) rotate(90deg);
+      background-color: #c03560;
+    }
+
+    /* Navbar inferior */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .nav-link-bottom {
+      color: #aaa;
+      text-align: center;
+      font-size: 0.8rem;
+      text-decoration: none;
+      background: none;
+      border: none;
+    }
+
+    .nav-link-bottom.active {
+      color: #ff4f8b;
+    }
+
+    .nav-link-bottom i {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    /* Toggle Switch Custom */
+    .form-check-input:checked {
+        background-color: #d94c7c;
+        border-color: #d94c7c;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="glass-container">
+      <h2><i class="fas fa-boxes"></i> Gestión de Productos</h2>
+
+      <!-- Tabs de Categorías -->
+      <ul class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-sabores" onclick="cambiarTab('sabores')">
+            <i class="fas fa-ice-cream"></i> Sabores
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-paletas" onclick="cambiarTab('paletas')">
+            <i class="fas fa-snowflake"></i> Paletas
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-pasteles" onclick="cambiarTab('pasteles')">
+            <i class="fas fa-birthday-cake"></i> Pasteles
+          </button>
+        </li>
+      </ul>
+
+      <!-- Contenedor de Lista -->
+      <div id="listaProductos" class="row g-3">
+        <!-- Se llena dinámicamente -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-pink" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Botón Flotante Agregar -->
+  <div class="fab-add" onclick="abrirModal()">
+    <i class="fas fa-plus"></i>
+  </div>
+
+  <!-- Modal Crear/Editar Producto -->
+  <div class="modal fade" id="productoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 20px;">
+        <div class="modal-header" style="background-color: #ffe3f3; border-radius: 20px 20px 0 0;">
+          <h5 class="modal-title" id="modalTitle" style="color: #d94c7c; font-weight: bold;">Nuevo Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formProducto">
+            <input type="hidden" id="prodId">
+            
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="nombre" required>
+            </div>
+
+            <!-- Campos dinámicos según categoría -->
+            <div id="camposDinamicos"></div>
+
+            <div class="mb-3 form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="disponible" checked>
+              <label class="form-check-label" for="disponible">Disponible para venta</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 20px;">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="guardarProducto()" style="background-color: #d94c7c; border: none; border-radius: 20px;">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar Inferior -->
+  <nav class="bottom-nav">
+    <button class="nav-link-bottom active">
+      <i class="fas fa-boxes"></i> Productos
+    </button>
+    <button class="nav-link-bottom" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+  </nav>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/proteger.js"></script>
+  <script>
+    // Verificar permisos inmediatamente
+    verificarAdmin();
+    
+    // Simple goBack function
+    function goBack() {
+        const role = localStorage.getItem('rol'); // Asumiendo que guardas el rol
+        if (role === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'vendedor.html';
+        }
+    }
+  </script>
+  <script src="js/paletas_admin.js"></script>
+  <script src="js/gestion_productos.js"></script>
+</body>
+</html>

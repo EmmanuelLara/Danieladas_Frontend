@@ -40,6 +40,7 @@ function generarSeccion(id, lista) {
     contenedor.innerHTML = "";
 
     lista.forEach((paleta, index) => {
+        if (paleta.disponible === false) return;
 
         const card = document.createElement("div");
         card.className = "col-6 col-md-4 col-lg-3";

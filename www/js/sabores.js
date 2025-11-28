@@ -1,8 +1,9 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const infoSeleccion = document.getElementById("infoSeleccion");
   const saboresGrid = document.getElementById("sabores-grid");
   const btnConfirmar = document.getElementById("btnConfirmar");
 
+  // 🔥 Recuperar selección del contenedor
   const seleccion = JSON.parse(localStorage.getItem("contenedorSeleccionado"));
   if (!seleccion) {
     alert("Primero elige un contenedor.");
@@ -10,63 +11,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  infoSeleccion.textContent = `Has elegido un ${seleccion.tipo.toUpperCase()} ${seleccion.tamano} ($${seleccion.precio})`;
+  // 🔥 Aseguramos número válido
+  const limiteSabores = Number(seleccion.maxSabores );
 
-  // Sabores con color (LOCAL)
-  const saboresPorContenedor = {
-    vaso: [
-      { nombre: "Vainilla", color: "#fff0b3" },
-      { nombre: "Fresa", color: "#ffb6c1" },
-      { nombre: "Chocolate", color: "#8b4513" },
-      { nombre: "Menta", color: "#98ff98" },
-      { nombre: "Galleta Oreo", color: "#c0c0c0" },
-      { nombre: "Mango", color: "#ffcc33" },
-      { nombre: "Nuez", color: "#deb887" }
-    ],
-    cono: [
-      { nombre: "Vainilla", color: "#fff0b3" },
-      { nombre: "Chocolate", color: "#8b4513" },
-      { nombre: "Napolitano", color: "#f0b6a4" },
-      { nombre: "Galleta", color: "#f7e3c1" },
-      { nombre: "Fresa", color: "#ffb6c1" },
-      { nombre: "Mango", color: "#ffcc33" },
-      { nombre: "Nuez", color: "#deb887" },
-      { nombre: "Pistache", color: "#93c572" },
-      { nombre: "Chocolate Blanco", color: "#fff8dc" },
-      { nombre: "Coco", color: "#f5f5dc" }
-    ],
-    canasta: [
-      { nombre: "Fresa", color: "#ffb6c1" },
-      { nombre: "Menta", color: "#98ff98" },
-      { nombre: "Oreo", color: "#c0c0c0" },
-      { nombre: "Nuez", color: "#deb887" },
-      { nombre: "Limón", color: "#e6ff66" },
-      { nombre: "Mango", color: "#ffcc33" },
-      { nombre: "Chocolate Blanco", color: "#fff8dc" }
-    ]
-  };
+  infoSeleccion.textContent = `Has elegido un ${seleccion.tipo.toUpperCase()} ${seleccion.tamano} ($${seleccion.precio}). Máx sabores: ${limiteSabores}`;
 
-  const limiteSabores = {
-    "Pequeño": 2,
-    "Mediano": 3,
-    "Grande": 4,
-    "Regular": 1,
-    "Doble": 2,
-    "Individual": 3,
-    "Familiar": 5
-  };
+  let sabores = [];
+  try {
+    // 🔥 Cargar lista desde la API
+    const response = await api.get('/sabores');
+    sabores = response.data; // [{nombre, color, disponible}]
+  } catch (error) {
+    console.error("Error al cargar sabores:", error);
+    return;
+  }
 
-  const sabores = saboresPorContenedor[seleccion.tipo] || [];
-  const maxSabores = limiteSabores[seleccion.tamano] || 2;
   let saboresSeleccionados = [];
+  actualizarBoton();
 
+  // 🔥 Crear cards dinámicas
   sabores.forEach(sabor => {
+    if (sabor.disponible === false) return;
+
     const col = document.createElement("div");
     col.className = "col-6 col-md-4 col-lg-3";
     col.innerHTML = `
       <div class="sabor-card text-center">
         <div class="color-preview" style="
-          background-color: ${sabor.color};
+          background-color: ${sabor.color || '#eee'};
           border: 2px solid #bdbdbd;
           box-shadow: 0 0 6px rgba(0,0,0,0.15);
           border-radius: 10px;
@@ -74,36 +46,46 @@ document.addEventListener("DOMContentLoaded", () => {
           height: 80px;
           margin: 0 auto 8px;
         "></div>
-        <div class="p-2">
-          <h6>${sabor.nombre}</h6>
-        </div>
+        <h6>${sabor.nombre}</h6>
       </div>
     `;
 
     const card = col.querySelector(".sabor-card");
-    card.addEventListener("click", () => seleccionarSabor(card, sabor.nombre));
-
+    card.addEventListener("click", () => toggleSabor(card, sabor.nombre));
     saboresGrid.appendChild(col);
   });
 
-  function seleccionarSabor(card, sabor) {
-    const yaSeleccionado = saboresSeleccionados.includes(sabor);
+  // 🔥 Controlar selección con límite
+  function toggleSabor(card, nombre) {
+    const yaEsta = saboresSeleccionados.includes(nombre);
 
-    if (yaSeleccionado) {
-      saboresSeleccionados = saboresSeleccionados.filter(s => s !== sabor);
-      card.classList.remove("selected");
-    } else {
-      if (saboresSeleccionados.length < maxSabores) {
-        saboresSeleccionados.push(sabor);
-        card.classList.add("selected");
-      } else {
-        alert(`Solo puedes elegir ${maxSabores} sabores para este tamaño.`);
+    if (!yaEsta) {
+      if (saboresSeleccionados.length >= limiteSabores) {
+        alert(`Solo puedes elegir ${limiteSabores} sabores.`);
+        return; // ⛔ evita pasar el límite
       }
+
+      saboresSeleccionados.push(nombre);
+      card.classList.add("selected");
+    } else {
+      saboresSeleccionados = saboresSeleccionados.filter(x => x !== nombre);
+      card.classList.remove("selected");
     }
 
-    btnConfirmar.disabled = saboresSeleccionados.length === 0;
+    actualizarBoton();
   }
 
+  // 🔥 Cambiar texto y estado del botón
+  function actualizarBoton() {
+    const restante = limiteSabores - saboresSeleccionados.length;
+    btnConfirmar.disabled = saboresSeleccionados.length === 0;
+    btnConfirmar.textContent =
+      restante > 0
+        ? `Confirmar (${restante} sabor(es) restantes)`
+        : `Confirmar selección`;
+  }
+
+  //  Guardar en carrito
   btnConfirmar.onclick = () => {
     if (saboresSeleccionados.length === 0) return;
 
@@ -118,11 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carrito.push(producto);
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
-    alert(`✅ Agregado al carrito:\n${producto.sabores.join(", ")} (${producto.tamano})`);
+    alert(`Agregado al carrito: ${producto.sabores.join(", ")}`);
     window.location.href = "carrito.html";
   };
 });
-
-function navigateTo(page) {
-  window.location.href = `${page}.html`;
-}

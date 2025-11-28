@@ -38,13 +38,15 @@ function inicializarContenedores() {
 
         tamanosDiv.innerHTML = "";
 
-        cont.tamanos.forEach(t => {
-            const btn = document.createElement("button");
-            btn.className = "btn tamano-btn";
-            btn.textContent = `${t.nombre} $${t.precio}`;
-            btn.dataset.nombre = t.nombre;
-            btn.dataset.precio = t.precio;
-            tamanosDiv.appendChild(btn);
+       cont.tamanos.forEach(t => {
+    const btn = document.createElement("button");
+    btn.className = "btn tamano-btn";
+    btn.textContent = `${t.nombre} $${t.precio}`;
+    btn.dataset.nombre = t.nombre;
+    btn.dataset.precio = t.precio;
+    btn.dataset.maxsabores = t.maxSabores; // 👈 IMPORTANTE
+    tamanosDiv.appendChild(btn);
+
         });
     });
 }
@@ -68,11 +70,13 @@ function agregarEventListeners() {
             return;
         }
 
-        localStorage.setItem("contenedorSeleccionado", JSON.stringify({
-            tipo: contenedorSeleccionado,
-            tamano: tamanoSeleccionado.nombre,
-            precio: tamanoSeleccionado.precio
-        }));
+     localStorage.setItem("contenedorSeleccionado", JSON.stringify({
+    tipo: contenedorSeleccionado,
+    tamano: tamanoSeleccionado.nombre,
+    precio: tamanoSeleccionado.precio,
+    maxSabores: tamanoSeleccionado.maxSabores // 👈 AQUI
+}));
+
 
         window.location.href = "sabores.html";
     });
@@ -114,9 +118,11 @@ function seleccionarContenedor(contenedorId) {
 
                 this.classList.add("selected");
 
-                tamanoSeleccionado = {
-                    nombre: this.dataset.nombre,
-                    precio: parseInt(this.dataset.precio)
+              tamanoSeleccionado = {
+    nombre: this.dataset.nombre,
+    precio: parseInt(this.dataset.precio),
+    maxSabores: parseInt(this.dataset.maxsabores) // 👈 NUEVO
+
                 };
             });
         });

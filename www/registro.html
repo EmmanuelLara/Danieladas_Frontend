@@ -104,6 +104,13 @@
   </div>
 
 <script>
+  function limpiarEstilos() {
+  document.getElementById("nombre").style.border = "";
+  document.getElementById("email").style.border = "";
+  document.getElementById("pass").style.border = "";
+  document.getElementById("confirmar").style.border = "";
+}
+
 function marcarError(input, mensaje) {
   input.style.border = "2px solid #ff4f8b";
 
@@ -153,25 +160,34 @@ async function registrar() {
   // PETICIÓN -----------------------------
 
   try {
-    const res = await api.post("/registro", {
+    // 1. REGISTRO
+    await api.post("/registro", {
       nombre,
       email,
       pass
     });
 
+    // 2. LOGIN AUTOMÁTICO
+    const loginRes = await api.post("/login", { email, pass });
+    
+    // Guardar sesión
+    localStorage.setItem("token", loginRes.data.token);
+    localStorage.setItem("usuario", JSON.stringify(loginRes.data.usuario));
+
     Swal.fire({
       icon: "success",
-      title: "¡Registro exitoso!",
-      text: "Serás redirigido al inicio...",
+      title: "¡Bienvenido!",
+      text: "Tu cuenta ha sido creada con éxito 🍧",
       background: "rgba(255, 255, 255, 0.9)",
       color: "#d63384",
-      timer: 1800,
+      timer: 1500,
       showConfirmButton: false
     }).then(() => {
       window.location.href = "index.html";
     });
 
   } catch (err) {
+    console.error(err);
     const msg = err.response?.data?.mensaje || "Error al registrar ❌";
 
     Swal.fire({

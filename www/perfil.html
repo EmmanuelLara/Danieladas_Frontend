@@ -207,7 +207,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const API = "http://localhost:3000";
+// const API = "http://192.168.1.72:4000"; // Usamos API_URL de api.js
 let usuarioActual = {};
 
 async function cargarPerfil() {
@@ -219,7 +219,7 @@ async function cargarPerfil() {
     // FOTO DE PERFIL
     const img = document.getElementById("fotoPerfil");
     if (data.foto) {
-      img.src = `${API}/uploads/usuarios/${data.foto}`;
+      img.src = `${API_URL}/uploads/datos/${data.foto}`;
     } else {
       img.src = "img/usuario.png";
     }
@@ -252,7 +252,7 @@ function editarPerfil() {
   // Preview foto
   const img = document.getElementById("previewFoto");
   if (usuarioActual.foto) {
-    img.src = `${API}/uploads/usuarios/${usuarioActual.foto}`;
+    img.src = `${API_URL}/uploads/datos/${usuarioActual.foto}`;
   } else {
     img.src = "img/usuario.png";
   }
@@ -285,7 +285,7 @@ async function guardarPerfil() {
     formData.append("nombre", nombre);
 formData.append("correo", correo); // ✅ CORRECTO
 // Backend espera 'email'
-    formData.append("ciudad", ciudad);
+
     
     if (pass) {
       formData.append("pass", pass);

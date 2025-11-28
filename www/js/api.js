@@ -1,5 +1,7 @@
+const API_URL = "http://192.168.1.72:4000";
+
 const api = axios.create({
-    baseURL: "http://localhost:3000/api"
+    baseURL: `${API_URL}/api`
 });
 
 // 👉 Interceptor para enviar token automáticamente
