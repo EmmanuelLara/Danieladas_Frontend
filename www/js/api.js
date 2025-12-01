@@ -7,10 +7,13 @@ const api = axios.create({
 // 👉 Interceptor para enviar token automáticamente
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
+    console.log('🔐 Token enviado en request:', token);
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
 
+
     return config;
 });
+

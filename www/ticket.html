@@ -1,167 +1,137 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ticket de Pedido - Danieladas</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
-  <style>
-    body {
-      background-color: #fffbea;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: "Courier New", monospace;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ticket de Pedido - Danieladas</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+    />
+    <style>
+.ticket {
+  width: 280px;
+  padding: 15px;
+  border: 1px solid #000;
+  font-family: Arial, sans-serif;
+  margin: auto;
+  background: #fff;
+}
+.ticket img {
+  display: block;
+  width: 100px;
+  margin: auto;
+}
+.text-center {
+  text-align: center;
+}
+.line {
+  border-bottom: 1px dashed #aaa;
+  margin: 8px 0;
+}
+.total {
+  font-size: 18px;
+  font-weight: bold;
+}
+#qr {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+.btn {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: #d46a6a;
+  color: white;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 15px;
+}
 
-    .ticket {
-      background: white;
-      border: 2px dashed #e22b5a;
-      width: 320px;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-    }
+    </style>
+  </head>
+  <body>
+<div class="ticket" id="ticket">
+  <img src="img/logo.png" alt="Danieladas Logo" />
+  <h2>Danieladas</h2>
+  <p class="text-center">🍦 Nevería Los Sabores</p>
+  <p class="text-center">Tel: 123-456-7890</p>
+  <div class="line"></div>
 
-    .ticket h2 {
-      text-align: center;
-      color: #e22b5a;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
+  <p><strong>Folio:</strong> <span id="folio"></span></p>
+  <p><strong>Cliente:</strong> <span id="cliente"></span></p>
+  <p><strong>Fecha:</strong> <span id="fecha"></span></p>
 
-    .ticket img {
-      display: block;
-      margin: 0 auto 10px;
-      width: 80px;
-    }
+  <div class="line"></div>
+  <p><strong>DETALLE DEL PEDIDO</strong></p>
+  <div id="detallePedido"></div>
 
-    .ticket p {
-      margin: 2px 0;
-      font-size: 14px;
-    }
+  <div class="line"></div>
+  <p class="total">TOTAL: $<span id="total"></span> MXN</p>
+  <div class="line"></div>
 
-    .line {
-      border-top: 1px dashed #999;
-      margin: 10px 0;
-    }
+  <p class="text-center">Escanea tu pedido 📲</p>
+  <div id="qr"></div>
+  <div class="line"></div>
 
-    .total {
-      font-weight: bold;
-      font-size: 16px;
-      color: #333;
-    }
+  <p class="text-center">¡Gracias por tu compra! 💖</p>
+  <p class="text-center">Sigue disfrutando de nuestros sabores 😋</p>
 
-    .text-center {
-      text-align: center;
-    }
+  <button class="btn" id="btnGuardar">
+    <i class="bi bi-download"></i> Descargar Ticket
+  </button>
+</div>
 
-    .btn {
-      display: block;
-      margin: 20px auto 0;
-      width: 80%;
-      border-radius: 25px;
-      background-color: #ff9fd6;
-      border: none;
-      color: white;
-      font-weight: bold;
-    }
 
-    .btn:hover {
-      background-color: #ff7fbd;
-    }
-  </style>
-</head>
-<body>
+    <!-- Librería para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <div class="ticket" id="ticket">
-    <img src="img/logo.png" alt="Danieladas Logo">
-    <h2>Danieladas</h2>
-    <p class="text-center">🍦 Nevería Los Sabores</p>
-    <p class="text-center">Tel: 123-456-7890</p>
-    <div class="line"></div>
+    <script src="js/proteger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 
-    <p><strong>Cliente:</strong> <span id="cliente">Mane Lara</span></p>
-    <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+    <script>
+  function cargarTicket(pedido) {
+  document.getElementById("folio").textContent = pedido.ticketId;
+  document.getElementById("cliente").textContent = pedido.cliente;
+  document.getElementById("fecha").textContent =
+    new Date(pedido.fecha).toLocaleString();
 
-    <div class="line"></div>
+  const detalle = document.getElementById("detallePedido");
+  let html = "";
 
-    <div id="detallePedido"></div>
+  pedido.productos.forEach((p) => {
+    const cantidad = p.cantidad || 1;
+    const subtotal = p.precio * cantidad;
 
-    <div class="line"></div>
-    <p class="total">TOTAL: $<span id="total"></span> MXN</p>
-    <div class="line"></div>
+    html += `
+      <p><strong>${p.tipo || p.nombre}</strong> ${p.tamano ? `(${p.tamano})` : ""}</p>
+      ${p.sabores?.length ? `<p>Sabores: ${p.sabores.join(", ")}</p>` : ""}
+      ${p.contenedor ? `<p>Contenedor: ${p.contenedor}</p>` : ""}
+      ${p.ingredientes?.length ? `<p>Ingredientes: ${p.ingredientes.join(", ")}</p>` : ""}
+      <p>Cantidad: ${cantidad}</p>
+      <p>Precio unitario: $${p.precio.toFixed(2)}</p>
+      <p><strong>Subtotal: $${subtotal.toFixed(2)}</strong></p>
+      <div class="line"></div>
+    `;
+  });
 
-    <p class="text-center">¡Gracias por tu compra! 💖</p>
-    <p class="text-center">Sigue disfrutando de nuestros sabores 😋</p>
+  detalle.innerHTML = html;
+  document.getElementById("total").textContent = pedido.total.toFixed(2);
 
-    <button class="btn" id="btnGuardar">
-      <i class="bi bi-check-circle-fill"></i> Confirmar y Descargar Ticket
-    </button>
-  </div>
+  // QR genera un link para ver el pedido en tu API
+  document.getElementById("qr").innerHTML = "";
+  new QRCode(document.getElementById("qr"), {
+    text: `https://midominio.com/pedido/${pedido.ticketId}`,
+    width: 120,
+    height: 120,
+  });
+}
 
-  <!-- Librería para generar PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <script src="js/proteger.js"></script>
-  <script>
-      verificarSesion();
-    const pedido = JSON.parse(localStorage.getItem("pedidoActual"));
-
-    if (!pedido) {
-      alert("No hay pedido registrado.");
-      window.location.href = "carrito.html";
-    }
-
-    document.getElementById("cliente").textContent = pedido.cliente;
-    document.getElementById("fecha").textContent = pedido.fecha;
-
-    const detalleDiv = document.getElementById("detallePedido");
-    let html = "";
-
-    pedido.productos.forEach(p => {
-      html += `
-        <p><strong>${p.tipo}</strong> ${p.tamano ? `(${p.tamano})` : ""}</p>
-        ${p.sabores ? `<p>Sabores: ${p.sabores.join(", ")}</p>` : ""}
-        ${p.ingredientes ? `<p>Ingredientes: ${p.ingredientes.join(", ")}</p>` : ""}
-        <p>Precio: $${p.precio.toFixed(2)}</p>
-        <div class="line"></div>
-      `;
-    });
-
-    detalleDiv.innerHTML = html;
-    document.getElementById("total").textContent = pedido.total.toFixed(2);
-
-    // 🔹 Botón para guardar pedido y descargar ticket
-    document.getElementById("btnGuardar").addEventListener("click", () => {
-      // Guardar en lista local de pedidos
-      let misPedidos = JSON.parse(localStorage.getItem("misPedidos")) || [];
-      pedido.id = Date.now();
-      pedido.estado = "Pendiente de entrega";
-      misPedidos.push(pedido);
-      localStorage.setItem("misPedidos", JSON.stringify(misPedidos));
-
-      // Mostrar mensaje de confirmación
-      alert("✅ Pedido confirmado, pasa a recoger 🍦");
-
-      // Descargar ticket como PDF
-      const elemento = document.getElementById("ticket");
-      const opciones = {
-        margin: 5,
-        filename: `Ticket_${pedido.id}.pdf`,
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a6", orientation: "portrait" }
-      };
-      html2pdf().set(opciones).from(elemento).save();
-
-      // Redirigir después de 3 segundos
-      setTimeout(() => {
-        window.location.href = "perfil.html"; // o "index.html"
-      }, 3000);
-    });
-  </script>
-
-</body>
+    </script>
+  </body>
 </html>

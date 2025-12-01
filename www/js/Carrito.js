@@ -7,18 +7,16 @@ function cargarCarrito() {
   const items = document.getElementById("carrito-items");
   const totalPrecio = document.getElementById("total-precio");
 
-  // 🛒 Si no hay productos
   if (carrito.length === 0) {
     vacio.style.display = "block";
     contenido.style.display = "none";
     return;
   }
 
-  // 📦 Mostrar carrito
   vacio.style.display = "none";
   contenido.style.display = "block";
-  items.innerHTML = "";
 
+  items.innerHTML = "";
   let total = 0;
 
   carrito.forEach((p, i) => {
@@ -28,7 +26,6 @@ function cargarCarrito() {
 
     let descripcion = "";
 
-    // 🧁 Detalles del producto
     if (p.sabores && p.sabores.length > 0)
       descripcion += `<strong>Sabores:</strong> ${p.sabores.join(", ")}<br>`;
     if (p.contenedor)
@@ -36,8 +33,7 @@ function cargarCarrito() {
     if (p.tipo)
       descripcion += `<strong>Tipo:</strong> ${p.tipo.toUpperCase()} (${p.tamano || 'N/A'})<br>`;
 
-    // 💬 Estructura visual de cada producto
-    const itemHTML = `
+    items.innerHTML += `
       <div class="carrito-item mb-3 p-3 bg-white shadow-sm rounded">
         <div class="item-header d-flex justify-content-between align-items-center">
           <span class="fw-bold">${p.nombre || p.tipo || "Producto"}</span>
@@ -48,7 +44,7 @@ function cargarCarrito() {
 
         <div class="item-details mt-2 small">
           ${descripcion || "Sin detalles adicionales."}
-          <strong>Precio unitario:</strong> $${p.precio.toFixed(2)}
+          <strong>Precio:</strong> $${p.precio.toFixed(2)}
         </div>
 
         <div class="cantidad-controls mt-2 d-flex justify-content-center align-items-center">
@@ -65,7 +61,6 @@ function cargarCarrito() {
         </div>
       </div>
     `;
-    items.innerHTML += itemHTML;
   });
 
   totalPrecio.textContent = `$${total.toFixed(2)}`;
@@ -80,7 +75,55 @@ function actualizarCantidad(index, nuevaCantidad) {
   cargarCarrito();
 }
 
-// 🗑️ Eliminar producto individual
+// 🗑️
+// Función para eliminar un ítem del carrito (pendiente de implementar)
+
+// 👉 Función para finalizar la compra
+async function finalizarCompra() {
+  try {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    if (carrito.length === 0) {
+      alert("El carrito está vacío. No hay nada que comprar.");
+      return;
+    }
+    // Calcular total
+    const total = carrito.reduce((sum, p) => {
+      const cantidad = p.cantidad || 1;
+      return sum + p.precio * cantidad;
+    }, 0);
+    // Preparar datos del pedido
+    const pedidoData = {
+      ticketId: "T" + Date.now(), // Generar ticketId simple
+      productos: carrito.map(p => ({
+        nombre: p.nombre || p.tipo,
+        tipo: p.tipo,
+        tamano: p.tamano,
+        cantidad: p.cantidad || 1,
+        precio: p.precio,
+        contenedor: p.contenedor,
+        sabores: p.sabores,
+        ingredientes: p.ingredientes
+      })),
+      total: total
+    };
+    // Enviar al backend usando la función crearPedido de api.js
+    const respuesta = await crearPedido(pedidoData);
+    console.log("Pedido creado:", respuesta);
+    alert("¡Compra finalizada con éxito! 🎉");
+    // Redirigir al cliente a su página de pedidos
+    window.location.href = "perfil.html";
+    // Vaciar carrito
+    localStorage.removeItem("carrito");
+    cargarCarrito();
+    // Opcional: redirigir a ticket de confirmación
+    // window.location.href = "ticket.html";
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.mensaje || "Error al finalizar la compra");
+  }
+}
+
+// Función para eliminar un ítem del carrito
 function eliminarItem(index) {
   const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
   carrito.splice(index, 1);
@@ -88,44 +131,3 @@ function eliminarItem(index) {
   cargarCarrito();
 }
 
-// ❌ Vaciar todo el carrito
-function vaciarCarrito() {
-  if (confirm("¿Vaciar todo el carrito?")) {
-    localStorage.removeItem("carrito");
-    cargarCarrito();
-  }
-}
-
-// 🧾 Finalizar compra
-function finalizarCompra() {
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  if (carrito.length === 0) {
-    alert("Tu carrito está vacío 🍦");
-    return;
-  }
-
-  // 🧩 Crear número único de ticket (hora + random)
-  const ticketId = "PED-" + Date.now().toString().slice(-6);
-
-  // 🧾 Crear pedido
-  const pedido = {
-    ticketId,
-    cliente: "Cliente Danieladas",
-    fecha: new Date().toLocaleString(),
-    productos: carrito,
-    total: carrito.reduce((sum, p) => sum + (p.precio * (p.cantidad || 1)), 0),
-    estado: "Pendiente"
-  };
-
-  // Guardar pedido actual (para ticket.html)
-  localStorage.setItem("pedidoActual", JSON.stringify(pedido));
-
-  // 📋 Guardar también en una lista general de pedidos (para el vendedor)
-  const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
-  pedidos.push(pedido);
-  localStorage.setItem("pedidos", JSON.stringify(pedidos));
-
-  // 🧹 Limpiar carrito y redirigir
-  localStorage.removeItem("carrito");
-  window.location.href = "ticket.html";
-}

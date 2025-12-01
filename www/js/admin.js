@@ -137,8 +137,4 @@ async function eliminarUsuario(id) {
     }
 }
 
-function cerrarSesion() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    window.location.href = "login.html";
-}
+

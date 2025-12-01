@@ -8,16 +8,19 @@ function verificarSesion() {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     if (!token || !usuario) {
-        cerrarYRedirigir();
+        cerrarSesion();
+        return false;
     } else {
         // Si hay sesión, proteger el botón "Atrás" para que no puedan volver al login
         protegerVentana();
+        return true;
     }
 }
 
 // 2. Verificar si es Admin
 function verificarAdmin() {
-    verificarSesion(); // Primero verifica que esté logueado
+    if (!verificarSesion()) return; // Stop if no session
+
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     
     if (usuario.rol.toLowerCase() !== "admin") {
@@ -35,7 +38,8 @@ function verificarAdmin() {
 
 // 3. Verificar si es Vendedor (o Admin, ya que admin puede ver todo)
 function verificarVendedor() {
-    verificarSesion();
+    if (!verificarSesion()) return; // Stop if no session
+
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     
     const rol = usuario.rol.toLowerCase();
@@ -53,7 +57,7 @@ function verificarVendedor() {
 }
 
 // 4. Función para cerrar sesión y mandar al login
-function cerrarYRedirigir() {
+function cerrarSesion() {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     window.location.href = "login.html";

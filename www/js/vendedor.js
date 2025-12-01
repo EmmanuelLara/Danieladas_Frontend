@@ -1,142 +1,130 @@
-// Verificar si es vendedor o admin al cargar
+// ==========================
+// 📌 Lógica Vendedor/Admin
+// ==========================
+
 document.addEventListener("DOMContentLoaded", () => {
     verificarVendedor();
     cargarPedidos();
 });
 
+// Validar rol del usuario
 function verificarVendedor() {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
-    // Permitimos acceso a vendedores y admins
-    if (!usuario || (usuario.rol.toLowerCase() !== "vendedor" && usuario.rol.toLowerCase() !== "admin")) {
+    const rol = usuario?.rol?.toLowerCase();
+
+    if (!rol || !["vendedor", "admin"].includes(rol)) {
         Swal.fire({
             icon: "error",
             title: "Acceso denegado",
-            text: "No tienes permisos de vendedor.",
-            showConfirmButton: false,
-            timer: 1500
-        }).then(() => {
-            window.location.href = "index.html";
-        });
+            text: "No tienes permisos para ver pedidos.",
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => window.location.href = "index.html");
     }
 }
 
+// Cargar todos los pedidos
 async function cargarPedidos() {
-    try {
-        const res = await api.get("/pedidos");
-        // Ordenar: Pendientes primero, luego Preparando, Listo, y al final Entregado
-        const ordenEstados = { "Pendiente": 1, "Preparando": 2, "Listo": 3, "Entregado": 4 };
-        
-        const pedidos = res.data.sort((a, b) => {
-            return (ordenEstados[a.estado] || 5) - (ordenEstados[b.estado] || 5);
-        });
+  try {
+    const pedidos = await listarTodosPedidos();
+    const cont = document.getElementById("listaPedidos");
+    cont.innerHTML = "";
 
-        const contenedor = document.getElementById("listaPedidos");
-        contenedor.innerHTML = "";
-
-        if (pedidos.length === 0) {
-            contenedor.innerHTML = `<p class="text-center text-muted">No hay pedidos registrados.</p>`;
-            return;
-        }
-
-        pedidos.forEach(p => {
-            const card = document.createElement("div");
-            card.className = "order-card";
-            
-            // Formatear fecha
-            const fecha = new Date(p.fecha).toLocaleString();
-
-            // Generar HTML de productos
-            const productosHtml = p.productos.map(prod => `
-                <div class="product-item">
-                    <strong>${prod.nombre}</strong> (${prod.tipo}) <br>
-                    <small class="text-muted">
-                        ${prod.contenedor ? `Contenedor: ${prod.contenedor} | ` : ''}
-                        ${prod.sabores && prod.sabores.length > 0 ? `Sabores: ${prod.sabores.join(", ")}` : ''}
-                    </small>
-                    <div class="d-flex justify-content-between mt-1">
-                        <span>Cant: ${prod.cantidad}</span>
-                        <span>$${prod.precio}</span>
-                    </div>
-                </div>
-            `).join("");
-
-            // Botones de estado
-            let botonesEstado = "";
-            if (p.estado !== "Entregado") {
-                botonesEstado = `
-                    <div class="mt-3 d-flex gap-2 justify-content-end border-top pt-2">
-                        ${p.estado === 'Pendiente' ? `<button class="btn btn-sm btn-info text-white" onclick="cambiarEstado('${p._id}', 'Preparando')">Preparar</button>` : ''}
-                        ${p.estado === 'Preparando' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstado('${p._id}', 'Listo')">Listo</button>` : ''}
-                        ${p.estado === 'Listo' ? `<button class="btn btn-sm btn-secondary" onclick="cambiarEstado('${p._id}', 'Entregado')">Entregar</button>` : ''}
-                    </div>
-                `;
-            }
-
-            card.innerHTML = `
-                <div class="order-header">
-                    <span>Ticket: #${p.ticketId}</span>
-                    <span class="badge ${getBadgeClass(p.estado)}">${p.estado}</span>
-                </div>
-                <div class="order-body">
-                    <p class="mb-2"><strong>Cliente:</strong> ${p.usuario ? p.usuario.nombre : 'Anónimo'}</p>
-                    <p class="mb-3 text-muted" style="font-size: 0.9rem"><i class="far fa-clock"></i> ${fecha}</p>
-                    
-                    <div class="bg-light p-2 rounded mb-3">
-                        ${productosHtml}
-                    </div>
-
-                    <h5 class="text-end text-danger fw-bold">Total: $${p.total}</h5>
-
-                    ${botonesEstado}
-                </div>
-            `;
-            contenedor.appendChild(card);
-        });
-
-    } catch (err) {
-        console.error(err);
-        document.getElementById("listaPedidos").innerHTML = 
-            `<div class="alert alert-danger">Error al cargar pedidos</div>`;
+    if (!pedidos || pedidos.length === 0) {
+      cont.innerHTML = `<p class="text-center text-muted mt-3">No hay pedidos todavía 🍦</p>`;
+      return;
     }
+
+    pedidos.forEach(p => {
+      const productosHtml = p.productos.map(prod => `
+        <div class="product-item">${prod.cantidad}x ${prod.nombre} (${prod.tipo})</div>
+      `).join("");
+
+      const total = p.total ?? 0;
+      const fecha = new Date(p.fecha).toLocaleDateString();
+
+      cont.innerHTML += `
+        <div class="order-card fade-in" id="pedido-${p._id}">
+            <div class="order-header">
+                <span><i class="fas fa-ticket-alt"></i> Ticket #${p.ticketId || "Sin ID"}</span>
+                <span class="status-badge ${getBadgeClass(p.estado)}">${p.estado}</span>
+            </div>
+
+            <div class="order-body">
+                <p><strong>📅 Fecha:</strong> ${fecha}</p>
+                <p><strong>🍧 Productos:</strong></p>
+                ${productosHtml}
+
+                <p class="order-total">Total: $${Number(total).toFixed(2)} MXN</p>
+
+                <div class="order-actions mt-3">
+                  <button class="btn btn-warning btn-sm" onclick="cambiarEstado('${p._id}', 'Preparando')">Preparar</button>
+                  <button class="btn btn-info btn-sm" onclick="cambiarEstado('${p._id}', 'Listo')">Listo</button>
+                  <button class="btn btn-success btn-sm" onclick="cambiarEstado('${p._id}', 'Entregado')">Entregar</button>
+                </div>
+            </div>
+        </div>`;
+    });
+
+  } catch (err) {
+    console.error("Error cargando pedidos:", err);
+    document.getElementById("listaPedidos").innerHTML =
+      `<p class="text-danger text-center">Error cargando pedidos</p>`;
+  }
 }
 
+// Badge CSS según estado
 function getBadgeClass(estado) {
     switch (estado) {
         case 'Pendiente': return 'status-pendiente';
         case 'Preparando': return 'status-preparando';
         case 'Listo': return 'status-listo';
         case 'Entregado': return 'status-entregado';
-        default: return 'bg-secondary';
+        default: return '';
     }
 }
 
+// Cambiar estado del pedido
 async function cambiarEstado(id, nuevoEstado) {
     try {
-        await api.put(`/pedidos/${id}`, { estado: nuevoEstado });
-        
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
+        await actualizarEstadoPedido(id, nuevoEstado);
+
+        Swal.fire({
+            icon: "success",
+            title: `Pedido ${nuevoEstado}`,
+            timer: 1100,
+            showConfirmButton: false
         });
-        
-        Toast.fire({
-            icon: 'success',
-            title: `Pedido ${nuevoEstado}`
-        });
+
+        // Efecto visual al actualizar
+        const card = document.getElementById(`pedido-${id}`);
+        if (card) {
+            card.classList.add("item-updated");
+            setTimeout(() => card.classList.remove("item-updated"), 1200);
+        }
 
         cargarPedidos();
-
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error("Error al actualizar estado:", error);
         Swal.fire("Error", "No se pudo actualizar el estado", "error");
     }
 }
 
-function cerrarSesion() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    window.location.href = "login.html";
-}
+// Cerrar sesión vendedor
+
+
+// ==========================
+// 📡 Funciones API
+// ==========================
+
+// Listar pedidos (Admin/Vendedor)
+const listarTodosPedidos = async () => {
+    const { data } = await api.get('/pedidos/todos');
+    return data;
+};
+
+// Actualizar estado del pedido
+const actualizarEstadoPedido = async (id, estado) => {
+    const { data } = await api.put(`/pedidos/${id}/estado`, { estado });
+    return data;
+};

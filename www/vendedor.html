@@ -9,116 +9,141 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/api.js"></script>
+<style>
+  body {
+    background: url("img/fondo.png") center/cover fixed no-repeat;
+    font-family: "Poppins", sans-serif;
+    padding-bottom: 90px;
+  }
 
-  <style>
-    body {
-      background-image: url("img/fondo.png");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding-bottom: 80px;
-    }
+  .glass-container {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(14px);
+    border-radius: 25px;
+    padding: 25px;
+    margin-top: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  }
 
-    .glass-container {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 20px;
-      margin-top: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+  h2 {
+    color: #e74282;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: -1px;
+  }
 
-    h2 {
-      color: #d94c7c;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  .order-card {
+    background: white;
+    border-radius: 18px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    border: 2px solid #ffd3e5;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
 
-    .order-card {
-      border: 1px solid #ffe3f3;
-      border-radius: 15px;
-      margin-bottom: 15px;
-      background: white;
-      transition: transform 0.2s;
-    }
+  .order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(233, 78, 132, 0.15);
+  }
 
-    .order-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(217, 76, 124, 0.15);
-    }
+  .order-header {
+    background: #ffd3e5;
+    padding: 12px 18px;
+    color: #d53879;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+  }
 
-    .order-header {
-      background-color: #ffe3f3;
-      padding: 10px 15px;
-      border-radius: 15px 15px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      color: #d94c7c;
-    }
+  .order-body {
+    padding: 18px;
+  }
 
-    .order-body {
-      padding: 15px;
-    }
+  .product-item {
+    border-left: 4px solid #ffd3e5;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
 
-    .status-badge {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: bold;
-    }
+  /* ESTADOS */
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .status-pendiente { background: #ffc107; color: #000; }
+  .status-preparando { background: #17a2b8; color: #fff; }
+  .status-listo { background: #28a745; color: #fff; }
+  .status-entregado { background: #6c757d; color: #fff; }
 
-    .status-pendiente { background-color: #ffc107; color: #000; }
-    .status-preparando { background-color: #17a2b8; color: #fff; }
-    .status-listo { background-color: #28a745; color: #fff; }
-    .status-entregado { background-color: #6c757d; color: #fff; }
+  /* BOTONES */
+  .order-actions button {
+    margin-right: 6px;
+    border-radius: 12px !important;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
 
-    /* Navbar inferior */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: white;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      z-index: 1000;
-      border-radius: 20px 20px 0 0;
-    }
+  .order-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #d53879;
+    text-align: right;
+  }
 
-    .nav-link {
-      color: #aaa;
-      text-align: center;
-      font-size: 0.8rem;
-      text-decoration: none;
-      background: none;
-      border: none;
-    }
+  /* NAVBAR INFERIOR */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-around;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+  }
 
-    .nav-link.active {
-      color: #ff4f8b;
-    }
+  .nav-link {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #8d8d8d;
+    border: none;
+    background: none;
+  }
+  
+  .nav-link.active {
+    color: #e74282;
+    font-weight: 600;
+  }
 
-    .nav-link i {
-      font-size: 1.5rem;
-      display: block;
-      margin-bottom: 2px;
-    }
+  .nav-link i {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+  }
+  .fade-in {
+  animation: fade .5s ease;
+}
+@keyframes fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    .product-item {
-        border-bottom: 1px solid #eee;
-        padding-bottom: 8px;
-        margin-bottom: 8px;
-    }
-    .product-item:last-child {
-        border-bottom: none;
-    }
-  </style>
+.item-updated {
+  animation: pulse 1s ease;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0px #ff7aa5; }
+  50% { box-shadow: 0 0 18px #ff7aa5; }
+  100% { box-shadow: 0 0 0px #ff7aa5; }
+}
+
+</style>
+
 </head>
 <body>
 
@@ -144,13 +169,7 @@
   </div>
 
   <!-- Navbar Inferior -->
-  <nav class="bottom-nav">
-    <button class="nav-link" onclick="window.location.href='index.html'">
-      <i class="fas fa-home"></i> Inicio
-    </button>
-    <button class="nav-link active">
-      <i class="fas fa-store"></i> Vendedor
-    </button>
+  <nav class="bottom-nav justify-content-center">
     <button class="nav-link" onclick="cerrarSesion()">
       <i class="fas fa-sign-out-alt"></i> Salir
     </button>
