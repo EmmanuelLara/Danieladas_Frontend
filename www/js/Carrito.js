@@ -75,25 +75,93 @@ function actualizarCantidad(index, nuevaCantidad) {
   cargarCarrito();
 }
 
-// 🗑️
-// Función para eliminar un ítem del carrito (pendiente de implementar)
+// 🗑️ Eliminar item (Sin confirmación, solo notificación)
+function eliminarItem(index) {
+  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  carrito.splice(index, 1);
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+  cargarCarrito();
 
-// 👉 Función para finalizar la compra
+  // Notificación discreta
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+  });
+  Toast.fire({
+    icon: 'success',
+    title: 'Producto eliminado'
+  });
+}
+
+// 🧹 Vaciar carrito con confirmación
+function vaciarCarrito() {
+    Swal.fire({
+        title: '¿Vaciar carrito?',
+        text: "Se eliminarán todos los productos",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, vaciar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem("carrito");
+            cargarCarrito();
+            Swal.fire('¡Vacío!', 'Tu carrito ha sido vaciado.', 'success');
+        }
+    });
+}
+
+// 👉 Función para finalizar la compra con validación
 async function finalizarCompra() {
-  try {
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-    if (carrito.length === 0) {
-      alert("El carrito está vacío. No hay nada que comprar.");
-      return;
+  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+  
+  if (carrito.length === 0) {
+    Swal.fire("Carrito vacío", "Agrega productos antes de comprar", "info");
+    return;
+  }
+
+  // Calcular total para mostrar en la confirmación
+  const total = carrito.reduce((sum, p) => {
+    const cantidad = p.cantidad || 1;
+    return sum + p.precio * cantidad;
+  }, 0);
+
+  // Confirmación de compra
+  const result = await Swal.fire({
+    title: '¿Confirmar compra?',
+    html: `
+      <p>Estás a punto de realizar tu pedido.</p>
+      <h3 class="text-pink fw-bold">Total: $${total.toFixed(2)}</h3>
+    `,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#e74282', // Color rosa de la marca
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '¡Sí, comprar!',
+    cancelButtonText: 'Seguir viendo'
+  });
+
+  if (!result.isConfirmed) return;
+
+  // Mostrar loading
+  Swal.fire({
+    title: 'Procesando...',
+    text: 'Estamos enviando tu pedido',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
     }
-    // Calcular total
-    const total = carrito.reduce((sum, p) => {
-      const cantidad = p.cantidad || 1;
-      return sum + p.precio * cantidad;
-    }, 0);
+  });
+
+  try {
     // Preparar datos del pedido
     const pedidoData = {
-      ticketId: "T" + Date.now(), // Generar ticketId simple
+      ticketId: "T" + Date.now(),
       productos: carrito.map(p => ({
         nombre: p.nombre || p.tipo,
         tipo: p.tipo,
@@ -106,28 +174,41 @@ async function finalizarCompra() {
       })),
       total: total
     };
-    // Enviar al backend usando la función crearPedido de api.js
+
+    // Enviar al backend
     const respuesta = await crearPedido(pedidoData);
     console.log("Pedido creado:", respuesta);
-    alert("¡Compra finalizada con éxito! 🎉");
-    // Redirigir al cliente a su página de pedidos
-    window.location.href = "perfil.html";
-    // Vaciar carrito
+
+    const idPedido = respuesta._id || respuesta.pedido?._id || respuesta.id;
+
+    // Éxito
+    await Swal.fire({
+      icon: 'success',
+      title: '¡Pedido Realizado!',
+      html: `
+        <p>Tu pedido ha sido enviado a cocina.</p>
+        <div class="mt-3">
+            <a href="ticket.html?id=${idPedido}" target="_blank" class="btn btn-outline-danger w-100">
+                <i class="bi bi-receipt"></i> Ver / Descargar Ticket
+            </a>
+        </div>
+      `,
+      confirmButtonColor: '#e74282',
+      confirmButtonText: 'Ir a Mis Pedidos'
+    });
+
+    // Limpiar y redirigir
     localStorage.removeItem("carrito");
-    cargarCarrito();
-    // Opcional: redirigir a ticket de confirmación
-    // window.location.href = "ticket.html";
+    window.location.href = "perfil.html";
+
   } catch (err) {
     console.error(err);
-    alert(err.response?.data?.mensaje || "Error al finalizar la compra");
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: err.response?.data?.mensaje || err.message || "No se pudo completar la compra. Intenta de nuevo.",
+      confirmButtonColor: '#e74282'
+    });
   }
-}
-
-// Función para eliminar un ítem del carrito
-function eliminarItem(index) {
-  const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-  carrito.splice(index, 1);
-  localStorage.setItem("carrito", JSON.stringify(carrito));
-  cargarCarrito();
 }
 

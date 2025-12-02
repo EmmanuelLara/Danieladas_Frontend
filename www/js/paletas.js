@@ -27,7 +27,12 @@ async function cargarCatalogo() {
 
     } catch (err) {
         console.error("❌ Error al cargar catálogo:", err);
-        alert("Error al cargar catálogo");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al cargar catálogo',
+            confirmButtonColor: '#d94c7c'
+        });
     }
 }
 
@@ -99,5 +104,13 @@ function agregarAlCarrito(id, index) {
     carrito.push(producto);
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
-    alert(`✅ ${cantidad} ${producto.tipo}(s) de ${paleta.nombre} agregada(s) al carrito.`);
+    Swal.fire({
+        icon: 'success',
+        title: '¡Agregado!',
+        text: `✅ ${cantidad} ${producto.tipo}(s) de ${paleta.nombre} agregada(s) al carrito.`,
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
 }

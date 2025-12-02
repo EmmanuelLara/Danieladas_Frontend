@@ -54,13 +54,15 @@ function renderizarProductos() {
 
         if (currentTab === 'paletas') {
             showImage = false; // No mostrar imagen para paletas
+        } else if (currentTab === 'sabores') {
+            showImage = false; // No mostrar imagen para sabores, usar color
         } else if (currentTab === 'pasteles') {
             // Usar ruta de uploads del servidor
             if (p.imagen) {
-                 imgUrl = `${API_URL}/uploads/${p.imagen}`;
+                 imgUrl = `${SERVER_URL}/uploads/${p.imagen}`;
             }
         } else {
-            // Sabores u otros
+            // Otros
             if (p.imagen) imgUrl = p.imagen;
             if (p.img) imgUrl = p.img;
         }
@@ -70,7 +72,15 @@ function renderizarProductos() {
         const badgeText = isAvailable ? 'Disponible' : 'No Disponible';
         const toggleChecked = isAvailable ? 'checked' : '';
         
-        const imgElement = showImage ? `<img src="${imgUrl}" class="product-img" alt="${p.nombre}" onerror="this.src='img/logo.png'">` : '';
+        let imgElement = '';
+        if (showImage) {
+            imgElement = `<img src="${imgUrl}" class="product-img" alt="${p.nombre}" onerror="this.src='img/logo.png'">`;
+        } else if (currentTab === 'sabores') {
+            const color = p.color || '#e22b5a'; // Default pink
+            imgElement = `<div class="product-img d-flex align-items-center justify-content-center" style="background-color: ${color}; color: white; font-size: 2rem;">
+                            <i class="fas fa-ice-cream"></i>
+                          </div>`;
+        }
 
         // Información adicional para paletas (precio y stock)
         let additionalInfo = '';

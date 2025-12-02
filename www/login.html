@@ -9,6 +9,10 @@
 
   <!-- TU API CONFIGURADA -->
   <script src="js/api.js"></script>
+  <script>
+    // Hacer API_URL disponible globalmente para mensajes de error
+    const API_URL = "http://192.168.1.72:4000";
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -180,7 +184,7 @@ async function iniciarSesion() {
     }); 
 
     setTimeout(() => {
-      const rol = r.data.usuario.rol.toLowerCase();
+      const rol = r.data.usuario.rol.trim().toLowerCase();
       if (rol === "admin") {
         window.location.href = "admin.html";
       } else if (rol === "vendedor") {
@@ -191,9 +195,24 @@ async function iniciarSesion() {
     }, 1500);
 
   } catch (err) {
-    console.error("❌ Error login:", err);
+    console.error("❌ Error login completo:", err);
+    console.error("❌ Error message:", err.message);
+    console.error("❌ Error code:", err.code);
+    console.error("❌ Error response:", err.response);
+    console.error("❌ Error request:", err.request);
 
-    const msg = err.response?.data?.mensaje || "❌ Error al iniciar sesión";
+    let msg = "❌ Error al iniciar sesión";
+    
+    // Prioridad: mensaje del usuario > mensaje del servidor > mensaje genérico
+    if (err.userMessage) {
+      msg = err.userMessage;
+    } else if (err.response?.data?.mensaje) {
+      msg = err.response.data.mensaje;
+    } else if (err.message === "Network Error" || err.code === "ECONNABORTED" || err.message?.includes("Network") || err.code === "ERR_NETWORK") {
+      msg = `No se pudo conectar al servidor.\n\nVerifica:\n• Tu conexión WiFi está activa\n• El celular está en la misma red WiFi que la PC\n• El servidor está corriendo en ${API_URL}\n• El firewall permite el puerto 4000`;
+    } else if (err.message) {
+      msg = `Error: ${err.message}`;
+    }
 
     alerta("error", "Error", msg);
 

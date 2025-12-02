@@ -134,9 +134,11 @@
         const usuario = JSON.parse(localStorage.getItem("usuario"));
         const nav = document.querySelector(".bottom-navbar");
 
-        if (usuario) {
+        if (usuario && usuario.rol) {
+            const rol = usuario.rol.trim().toLowerCase();
+            
             // Botón Admin
-            if (usuario.rol === "admin") {
+            if (rol === "admin") {
                 const adminBtn = document.createElement("button");
                 adminBtn.className = "nav-link";
                 adminBtn.onclick = () => window.location.href = "admin.html";
@@ -148,7 +150,7 @@
             }
 
             // Botón Vendedor (visible para vendedores y admins)
-            if (usuario.rol === "vendedor" || usuario.rol === "admin") {
+            if (rol === "vendedor" || rol === "admin") {
                 const vendBtn = document.createElement("button");
                 vendBtn.className = "nav-link";
                 vendBtn.onclick = () => window.location.href = "vendedor.html";

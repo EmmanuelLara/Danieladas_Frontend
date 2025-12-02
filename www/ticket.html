@@ -13,125 +13,434 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
     />
     <style>
-.ticket {
-  width: 280px;
-  padding: 15px;
-  border: 1px solid #000;
-  font-family: Arial, sans-serif;
-  margin: auto;
-  background: #fff;
-}
-.ticket img {
-  display: block;
-  width: 100px;
-  margin: auto;
-}
-.text-center {
-  text-align: center;
-}
-.line {
-  border-bottom: 1px dashed #aaa;
-  margin: 8px 0;
-}
-.total {
-  font-size: 18px;
-  font-weight: bold;
-}
-#qr {
-  display: flex;
-  justify-content: center;
-  margin: 10px 0;
-}
-.btn {
-  width: 100%;
-  padding: 8px;
-  border: none;
-  background: #d46a6a;
-  color: white;
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 15px;
-}
-
+      body {
+        background-color: #f8f9fa;
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px 0;
+        overflow-y: auto; /* Permitir scroll vertical */
+      }
+      .ticket-container {
+        width: 100%;
+        max-width: 380px;
+        padding: 20px;
+        margin: 0 auto;
+        max-height: none; /* Sin límite de altura */
+      }
+      .ticket {
+        background: #fff;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 2px dashed #ff9fd6;
+        position: relative;
+      }
+      /* Efecto de ticket cortado (opcional) */
+      .ticket::before, .ticket::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: radial-gradient(circle, transparent 50%, #fff 50%) 0 0/20px 20px;
+        transform: rotate(180deg);
+        display: none; /* Simplificado por ahora */
+      }
+      
+      .ticket-logo {
+        width: 80px;
+        margin-bottom: 5px;
+      }
+      .ticket-title {
+        color: #e22b5a;
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      .ticket-subtitle {
+        color: #555;
+        font-size: 0.9rem;
+        margin: 0;
+      }
+      .ticket-info {
+        font-size: 0.8rem;
+        color: #777;
+      }
+      .line {
+        border-bottom: 2px dashed #ff9fd6;
+        margin: 15px 0;
+      }
+      .line-dotted {
+        border-bottom: 1px dotted #ddd;
+        margin: 8px 0;
+      }
+      .section-title {
+        font-weight: bold;
+        color: #e22b5a;
+        text-align: center;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+      }
+      #detallePedido {
+        max-height: 400px; /* Altura máxima para el área de productos */
+        overflow-y: auto; /* Scroll si hay muchos productos */
+        padding-right: 5px; /* Espacio para el scrollbar */
+      }
+      /* Estilo del scrollbar */
+      #detallePedido::-webkit-scrollbar {
+        width: 6px;
+      }
+      #detallePedido::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      #detallePedido::-webkit-scrollbar-thumb {
+        background: #ff9fd6;
+        border-radius: 10px;
+      }
+      #detallePedido::-webkit-scrollbar-thumb:hover {
+        background: #e74282;
+      }
+      .ticket-details p {
+        margin: 5px 0;
+        font-size: 0.9rem;
+      }
+      .text-pink {
+        color: #e22b5a;
+        font-weight: bold;
+      }
+      .item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+      }
+      .item-desc {
+        flex: 1;
+        min-width: 0; /* Permite que el texto se ajuste */
+        word-wrap: break-word;
+      }
+      .item-desc strong {
+        display: block;
+        margin-bottom: 2px;
+      }
+      .item-sub {
+        font-size: 0.7rem;
+        color: #777;
+        font-style: italic;
+        margin-top: 2px;
+        line-height: 1.2;
+      }
+      .item-price {
+        text-align: right;
+        min-width: 70px;
+        flex-shrink: 0; /* No se encoge */
+        font-size: 0.8rem;
+      }
+      .item-price div:last-child {
+        font-weight: bold;
+        color: #e22b5a;
+        margin-top: 2px;
+      }
+      .total-label {
+        font-size: 1.1rem;
+        font-weight: bold;
+      }
+      .total-amount {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #e22b5a;
+      }
+      #qr {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+      }
+      .footer-text {
+        font-size: 0.8rem;
+        color: #777;
+        margin: 2px 0;
+      }
+      .btn-pink {
+        background-color: #ff9fd6;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: 0.3s;
+      }
+      .btn-pink:hover {
+        background-color: #ff7fbd;
+        color: white;
+      }
+      .actions {
+        text-align: center;
+      }
     </style>
   </head>
   <body>
-<div class="ticket" id="ticket">
-  <img src="img/logo.png" alt="Danieladas Logo" />
-  <h2>Danieladas</h2>
-  <p class="text-center">🍦 Nevería Los Sabores</p>
-  <p class="text-center">Tel: 123-456-7890</p>
-  <div class="line"></div>
+    <div class="ticket-container">
+        <div class="ticket" id="ticket">
+            <div class="text-center mb-3">
+                <img src="img/logo.png" alt="Danieladas Logo" class="ticket-logo" />
+                <h2 class="ticket-title">Danieladas</h2>
+                <p class="ticket-subtitle">🍦 Nevería Los Sabores</p>
+                <p class="ticket-info">Tel: 123-456-7890</p>
+            </div>
+            
+            <div class="line"></div>
 
-  <p><strong>Folio:</strong> <span id="folio"></span></p>
-  <p><strong>Cliente:</strong> <span id="cliente"></span></p>
-  <p><strong>Fecha:</strong> <span id="fecha"></span></p>
+            <div class="ticket-details">
+                <p><strong>Folio:</strong> <span id="folio" class="text-pink">Cargando...</span></p>
+                <p><strong>Cliente:</strong> <span id="cliente">...</span></p>
+                <p><strong>Fecha:</strong> <span id="fecha">...</span></p>
+            </div>
 
-  <div class="line"></div>
-  <p><strong>DETALLE DEL PEDIDO</strong></p>
-  <div id="detallePedido"></div>
+            <div class="line"></div>
+            <p class="section-title">DETALLE DEL PEDIDO</p>
+            <div id="detallePedido">
+                <p class="text-center text-muted">Cargando productos...</p>
+            </div>
 
-  <div class="line"></div>
-  <p class="total">TOTAL: $<span id="total"></span> MXN</p>
-  <div class="line"></div>
+            <div class="line"></div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="total-label">TOTAL:</span>
+                <span class="total-amount">$<span id="total">0.00</span> MXN</span>
+            </div>
+            <div class="line"></div>
 
-  <p class="text-center">Escanea tu pedido 📲</p>
-  <div id="qr"></div>
-  <div class="line"></div>
+            <p class="text-center mt-3 mb-2"><strong>Muestra este código al vendedor</strong></p>
+            <p class="text-center small text-muted mb-2">El vendedor escaneará este código para marcar tu pedido como entregado</p>
+            <div id="qr"></div>
+            
+            <div class="line mt-3"></div>
 
-  <p class="text-center">¡Gracias por tu compra! 💖</p>
-  <p class="text-center">Sigue disfrutando de nuestros sabores 😋</p>
+            <p class="text-center footer-text">¡Gracias por tu compra! 💖</p>
+            <p class="text-center footer-text">Sigue disfrutando de nuestros sabores 😋</p>
+        </div>
 
-  <button class="btn" id="btnGuardar">
-    <i class="bi bi-download"></i> Descargar Ticket
-  </button>
-</div>
+        <div class="actions mt-4">
+            <button class="btn btn-pink mb-2" id="btnGuardar">
+                <i class="bi bi-download"></i> Descargar Ticket
+            </button>
+            <button class="btn btn-outline-secondary" onclick="window.close()">
+                <i class="bi bi-x-circle"></i> Cerrar
+            </button>
+        </div>
 
+        <!-- DEBUG INFO (Visible solo si hay error o para verificar) -->
+        <div id="debugInfo" class="mt-4 p-3 bg-light border rounded d-none" style="font-size: 10px; word-break: break-all;">
+            <h6 class="text-danger">Información de Depuración</h6>
+            <pre id="debugContent">Esperando datos...</pre>
+        </div>
+    </div>
 
     <!-- Librería para generar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <script src="js/proteger.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <script src="js/api.js"></script>
+    <script src="js/proteger.js"></script>
+    
     <script>
-  function cargarTicket(pedido) {
-  document.getElementById("folio").textContent = pedido.ticketId;
-  document.getElementById("cliente").textContent = pedido.cliente;
-  document.getElementById("fecha").textContent =
-    new Date(pedido.fecha).toLocaleString();
+      document.addEventListener("DOMContentLoaded", async () => {
+        const params = new URLSearchParams(window.location.search);
+        const ticketId = params.get("id");
+        const debugDiv = document.getElementById("debugInfo");
+        const debugContent = document.getElementById("debugContent");
 
-  const detalle = document.getElementById("detallePedido");
-  let html = "";
+        if (!ticketId) {
+          Swal.fire("Error", "No se especificó un ticket", "error");
+          debugDiv.classList.remove("d-none");
+          debugContent.textContent = "Error: No ticket ID in URL";
+          return;
+        }
 
-  pedido.productos.forEach((p) => {
-    const cantidad = p.cantidad || 1;
-    const subtotal = p.precio * cantidad;
+        try {
+          // Mostrar loading
+          Swal.showLoading();
 
-    html += `
-      <p><strong>${p.tipo || p.nombre}</strong> ${p.tamano ? `(${p.tamano})` : ""}</p>
-      ${p.sabores?.length ? `<p>Sabores: ${p.sabores.join(", ")}</p>` : ""}
-      ${p.contenedor ? `<p>Contenedor: ${p.contenedor}</p>` : ""}
-      ${p.ingredientes?.length ? `<p>Ingredientes: ${p.ingredientes.join(", ")}</p>` : ""}
-      <p>Cantidad: ${cantidad}</p>
-      <p>Precio unitario: $${p.precio.toFixed(2)}</p>
-      <p><strong>Subtotal: $${subtotal.toFixed(2)}</strong></p>
-      <div class="line"></div>
-    `;
-  });
+          console.log("Solicitando ticket:", ticketId);
+          
+          // Obtener todos los pedidos del usuario
+          const response = await api.get(`/pedidos/mios`);
+          
+          console.log("Respuesta API:", response);
+          
+          // Buscar el pedido específico por ID
+          const pedidos = response.data;
+          const pedido = pedidos.find(p => p._id === ticketId);
 
-  detalle.innerHTML = html;
-  document.getElementById("total").textContent = pedido.total.toFixed(2);
+          // DEBUG: Mostrar lo que llegó
+          debugContent.textContent = JSON.stringify(pedido, null, 2);
+          // Descomenta la siguiente línea si quieres ver el debug siempre
+          // debugDiv.classList.remove("d-none");
 
-  // QR genera un link para ver el pedido en tu API
-  document.getElementById("qr").innerHTML = "";
-  new QRCode(document.getElementById("qr"), {
-    text: `https://midominio.com/pedido/${pedido.ticketId}`,
-    width: 120,
-    height: 120,
-  });
-}
+          if (!pedido) {
+             throw new Error("Pedido no encontrado en tu lista de pedidos");
+          }
 
+          cargarTicket(pedido);
+          Swal.close();
+
+        } catch (error) {
+          console.error(error);
+          Swal.fire("Error", "No se pudo cargar el pedido. Ver detalles abajo.", "error");
+          
+          // Mostrar debug info en caso de error
+          debugDiv.classList.remove("d-none");
+          debugContent.textContent += "\n\nERROR: " + (error.message || JSON.stringify(error));
+        }
+      });
+
+      function cargarTicket(pedido) {
+        document.getElementById("folio").textContent = pedido.ticketId || (pedido._id ? pedido._id.slice(-6).toUpperCase() : "N/A");
+        document.getElementById("cliente").textContent = pedido.usuario?.nombre || "Cliente General";
+        document.getElementById("fecha").textContent = pedido.fecha ? new Date(pedido.fecha).toLocaleString() : "Fecha desconocida";
+
+        const detalle = document.getElementById("detallePedido");
+        let html = "";
+
+        if (pedido.productos && Array.isArray(pedido.productos)) {
+            pedido.productos.forEach((p, index) => {
+              const cantidad = p.cantidad || 1;
+              const precio = Number(p.precio) || 0;
+              const subtotal = precio * cantidad;
+
+              // Construir nombre del producto
+              let nombreProducto = p.tipo || p.nombre || "Producto";
+              if (p.tamano) nombreProducto += ` (${p.tamano})`;
+
+              // Construir detalles adicionales
+              let detalles = [];
+              if (p.sabores && p.sabores.length > 0) {
+                detalles.push(`Sabores: ${p.sabores.join(", ")}`);
+              }
+              if (p.contenedor) {
+                detalles.push(`Contenedor: ${p.contenedor}`);
+              }
+              if (p.ingredientes && p.ingredientes.length > 0) {
+                detalles.push(`Ingredientes: ${p.ingredientes.join(", ")}`);
+              }
+
+              html += `
+                <div class="item-row">
+                  <div class="item-desc">
+                      <strong>${nombreProducto}</strong>
+                      ${detalles.map(d => `<div class="item-sub">${d}</div>`).join('')}
+                  </div>
+                  <div class="item-price">
+                     <div>${cantidad} × $${precio.toFixed(2)}</div>
+                     <div>$${subtotal.toFixed(2)}</div>
+                  </div>
+                </div>
+                ${index < pedido.productos.length - 1 ? '<div class="line-dotted"></div>' : ''}
+              `;
+            });
+        } else {
+            html = '<p class="text-center text-danger">No hay productos en este pedido</p>';
+        }
+
+        detalle.innerHTML = html;
+        document.getElementById("total").textContent = Number(pedido.total || 0).toFixed(2);
+
+        // QR - Contiene URL para que el vendedor marque como entregado
+        const qrContainer = document.getElementById("qr");
+        qrContainer.innerHTML = "";
+        
+        // Construir URL que funcione en navegador y Cordova
+        let baseUrl = window.location.origin;
+        if (baseUrl.includes('file://')) {
+          // Si estamos en Cordova, usar la IP del servidor
+          baseUrl = API_URL.replace(':4000', '');
+        }
+        const qrUrl = `${baseUrl}/entregar.html?id=${pedido._id}`;
+        
+        console.log("QR URL:", qrUrl);
+        
+        new QRCode(qrContainer, {
+          text: qrUrl,
+          width: 120,
+          height: 120,
+          colorDark : "#e22b5a",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+        });
+      }
+
+      // Descargar PDF
+      document.getElementById("btnGuardar").addEventListener("click", () => {
+        const element = document.getElementById("ticket");
+        const btn = document.getElementById("btnGuardar");
+        const detallePedido = document.getElementById("detallePedido");
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+        
+        // Guardar estilos originales
+        const originalMaxHeight = detallePedido.style.maxHeight;
+        const originalOverflow = detallePedido.style.overflow;
+        
+        // Remover limitaciones de altura para capturar todo
+        detallePedido.style.maxHeight = 'none';
+        detallePedido.style.overflow = 'visible';
+        
+        // Esperar un momento para que se renderice
+        setTimeout(() => {
+          // Calcular altura dinámica basada en el contenido
+          const ticketHeight = element.scrollHeight;
+          const pdfHeight = Math.ceil(ticketHeight * 0.264583); // Conversión px a mm más precisa
+          
+          // Opciones optimizadas para ticket
+          const opt = {
+            margin:       [2, 2, 2, 2], // Márgenes pequeños
+            filename:     `Ticket_${document.getElementById("folio").textContent}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+              scale: 2, 
+              useCORS: true,
+              scrollY: 0,
+              scrollX: 0,
+              windowHeight: ticketHeight + 50,
+              logging: false
+            },
+            jsPDF:        { 
+              unit: 'mm', 
+              format: [80, Math.max(150, pdfHeight)], // Altura dinámica, mínimo 150mm
+              orientation: 'portrait',
+              compress: true
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Evitar saltos de página
+          };
+          
+          html2pdf().set(opt).from(element).save().then(() => {
+            // Restaurar estilos originales
+            detallePedido.style.maxHeight = originalMaxHeight;
+            detallePedido.style.overflow = originalOverflow;
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-download"></i> Descargar Ticket';
+          }).catch(err => {
+            console.error(err);
+            
+            // Restaurar estilos en caso de error
+            detallePedido.style.maxHeight = originalMaxHeight;
+            detallePedido.style.overflow = originalOverflow;
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error al descargar';
+          });
+        }, 300); // Esperar 300ms para que se renderice completamente
+      });
     </script>
   </body>
 </html>

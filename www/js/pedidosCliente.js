@@ -10,7 +10,7 @@ async function cargarPerfil() {
 
     const img = document.getElementById("fotoPerfil");
     img.src = data.foto
-      ? `${API_URL}/uploads/usuarios/${data.foto}`
+      ? `${SERVER_URL}/uploads/usuarios/${data.foto}`
       : "img/usuario.png";
 
     document.getElementById("nombreUsuario").textContent = data.nombre;
@@ -32,7 +32,7 @@ function editarPerfil() {
 
   const img = document.getElementById("previewFoto");
   img.src = usuarioActual.foto
-    ? `${API_URL}/uploads/usuarios/${usuarioActual.foto}`
+    ? `${SERVER_URL}/uploads/usuarios/${usuarioActual.foto}`
     : "img/usuario.png";
 
   new bootstrap.Modal('#modalEditarPerfil').show();
@@ -113,6 +113,11 @@ async function cargarPedidos() {
             <p><strong>Productos:</strong></p>
             <ul>${productosHtml}</ul>
             <p><strong>Total:</strong> $${Number(p.total).toFixed(2)} MXN</p>
+            <div class="text-end mt-2">
+                <a href="ticket.html?id=${p._id}" target="_blank" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-receipt"></i> Ver Ticket
+                </a>
+            </div>
           </div>
         </div>`;
     });

@@ -7,9 +7,12 @@ function mostrarPedido() {
     const resultado = document.getElementById('resultado');
 
     if (ingredientes.length === 0) {
-        resultado.innerHTML = `
-            <p class="text-danger mt-3">⚠️ Debes seleccionar al menos un ingrediente.</p>
-        `;
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atención',
+            text: 'Debes seleccionar al menos un ingrediente.',
+            confirmButtonColor: '#d94c7c'
+        });
         return;
     }
 
@@ -37,14 +40,21 @@ function mostrarPedido() {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
     // Mensaje de confirmación
-    resultado.innerHTML = `
-        <div class="alert alert-success mt-3" role="alert">
-            <h5>✅ Producto agregado al carrito</h5>
+    Swal.fire({
+        icon: 'success',
+        title: '¡Listo!',
+        html: `
             <p><strong>Ingredientes:</strong> ${ingredientes.join(", ")}</p>
-            <a href="carrito.html" class="btn btn-primary mt-2">
-                <i class="bi bi-cart-fill"></i> Ver carrito
-            </a>
-        </div>
-    `;
+            <p>Producto agregado al carrito</p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Ver carrito',
+        cancelButtonText: 'Seguir comprando',
+        confirmButtonColor: '#d94c7c',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "carrito.html";
+        }
+    });
 }
-    

@@ -19,7 +19,12 @@ async function cargarCatalogo() {
 
     } catch (err) {
         console.error("❌ Error al cargar catálogo:", err);
-        alert("Error al cargar el catálogo.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error al cargar el catálogo.',
+            confirmButtonColor: '#d94c7c'
+        });
     }
 }
 

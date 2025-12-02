@@ -15,7 +15,12 @@ async function cargarCatalogo() {
         pasteles = r.data.pasteles || [];
 
     } catch (error) {
-        alert("Error al cargar pasteles.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Error al cargar pasteles',
+            confirmButtonColor: '#d94c7c'
+        });
         console.error(error);
     }
 }
@@ -34,7 +39,7 @@ function renderizarPasteles() {
 
         tarjeta.innerHTML = `
             <div class="pastel-card" onclick="agregarAlCarrito(${i})">
-                <img src="${API_URL}/uploads/${p.imagen}" class="pastel-img">
+                <img src="${SERVER_URL}/uploads/${p.imagen}" class="pastel-img">
                 <h5 class="pastel-title mt-2">${p.nombre}</h5>
                 <p class="text-muted mb-1">${p.descripcion}</p>
                 <p class="pastel-precio">$${p.precioRebanada} por rebanada</p>
@@ -64,5 +69,13 @@ window.agregarAlCarrito = (i) => {
 
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
-    alert(`🍰 ${p.nombre} agregado al carrito`);
+    Swal.fire({
+        icon: 'success',
+        title: '¡Agregado!',
+        text: `🍰 ${p.nombre} agregado al carrito`,
+        timer: 2000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
 };

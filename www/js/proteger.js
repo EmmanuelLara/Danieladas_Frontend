@@ -23,7 +23,7 @@ function verificarAdmin() {
 
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     
-    if (usuario.rol.toLowerCase() !== "admin") {
+    if (!usuario || !usuario.rol || usuario.rol.trim().toLowerCase() !== "admin") {
         Swal.fire({
             icon: "error",
             title: "Acceso denegado",
@@ -31,7 +31,7 @@ function verificarAdmin() {
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            redirigirSegunRol(usuario.rol);
+            redirigirSegunRol(usuario ? usuario.rol : null);
         });
     }
 }
@@ -42,7 +42,12 @@ function verificarVendedor() {
 
     const usuario = JSON.parse(localStorage.getItem("usuario"));
     
-    const rol = usuario.rol.toLowerCase();
+    if (!usuario || !usuario.rol) {
+         cerrarSesion();
+         return;
+    }
+
+    const rol = usuario.rol.trim().toLowerCase();
     if (rol !== "vendedor" && rol !== "admin") {
         Swal.fire({
             icon: "error",
@@ -64,9 +69,17 @@ function cerrarSesion() {
 }
 
 // 5. Redirigir al usuario a su página correspondiente si intenta entrar donde no debe
+// 5. Redirigir al usuario a su página correspondiente si intenta entrar donde no debe
 function redirigirSegunRol(rol) {
-    if (rol === "admin") window.location.href = "admin.html";
-    else if (rol === "vendedor") window.location.href = "vendedor.html";
+    if (!rol) {
+        window.location.href = "index.html";
+        return;
+    }
+    
+    const r = rol.trim().toLowerCase();
+    
+    if (r === "admin") window.location.href = "admin.html";
+    else if (r === "vendedor") window.location.href = "vendedor.html";
     else window.location.href = "index.html";
 }
 

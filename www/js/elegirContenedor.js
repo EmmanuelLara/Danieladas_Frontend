@@ -18,7 +18,12 @@ function cargarContenedoresDesdeCatalogo() {
     const catalogo = JSON.parse(localStorage.getItem("catalogoCompleto"));
 
     if (!catalogo || !catalogo.contenedores) {
-        alert("No se encontró el catálogo. Regresa a la pantalla principal.");
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontró el catálogo. Regresa a la pantalla principal.',
+            confirmButtonColor: '#d94c7c'
+        });
         return;
     }
 
@@ -66,7 +71,12 @@ function agregarEventListeners() {
     // botón continuar
     document.getElementById("continuar-btn").addEventListener("click", () => {
         if (!contenedorSeleccionado || !tamanoSeleccionado) {
-            alert("Selecciona un contenedor y un tamaño.");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Selecciona un contenedor y un tamaño.',
+                confirmButtonColor: '#d94c7c'
+            });
             return;
         }
 

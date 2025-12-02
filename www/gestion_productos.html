@@ -270,7 +270,9 @@
     
     // Simple goBack function
     function goBack() {
-        const role = localStorage.getItem('rol'); // Asumiendo que guardas el rol
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        const role = usuario ? usuario.rol.trim().toLowerCase() : '';
+        
         if (role === 'admin') {
             window.location.href = 'admin.html';
         } else {

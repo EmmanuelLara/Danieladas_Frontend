@@ -6,8 +6,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 🔥 Recuperar selección del contenedor
   const seleccion = JSON.parse(localStorage.getItem("contenedorSeleccionado"));
   if (!seleccion) {
-    alert("Primero elige un contenedor.");
-    window.location.href = "elegirContenedor.html";
+    Swal.fire({
+      icon: 'warning',
+      title: 'Atención',
+      text: 'Primero elige un contenedor.',
+      confirmButtonColor: '#d94c7c'
+    }).then(() => {
+        window.location.href = "elegirContenedor.html";
+    });
     return;
   }
 
@@ -61,7 +67,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!yaEsta) {
       if (saboresSeleccionados.length >= limiteSabores) {
-        alert(`Solo puedes elegir ${limiteSabores} sabores.`);
+        Swal.fire({
+          icon: 'info',
+          title: 'Límite alcanzado',
+          text: `Solo puedes elegir ${limiteSabores} sabores.`,
+          confirmButtonColor: '#d94c7c',
+          timer: 2000
+        });
         return; // ⛔ evita pasar el límite
       }
 
@@ -100,7 +112,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     carrito.push(producto);
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
-    alert(`Agregado al carrito: ${producto.sabores.join(", ")}`);
-    window.location.href = "carrito.html";
+    Swal.fire({
+      icon: 'success',
+      title: '¡Listo!',
+      text: `Agregado al carrito: ${producto.sabores.join(", ")}`,
+      timer: 2000,
+      showConfirmButton: false
+    }).then(() => {
+        window.location.href = "carrito.html";
+    });
   };
 });
