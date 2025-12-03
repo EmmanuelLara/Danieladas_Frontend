@@ -32,6 +32,14 @@
     margin-bottom: 4px;
 }
 
+.nav-icon-letter {
+    font-size: 1.6rem;
+    font-weight: bold;
+    font-family: 'Arial Black', sans-serif;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+
 .nav-link.active {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 12px;

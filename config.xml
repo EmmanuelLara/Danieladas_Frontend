@@ -3,8 +3,10 @@
     xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <name>NeveriaApp</name>
+    <name>Danieladas</name>
     <content src="bienvenida.html" />
+    <icon src="/www/img/logo.png" />
+ 
 
     <!-- Permitir acceso a la API -->
     <access origin="http://192.168.1.72:4000" />

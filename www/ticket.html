@@ -191,8 +191,8 @@
             <div class="text-center mb-3">
                 <img src="img/logo.png" alt="Danieladas Logo" class="ticket-logo" />
                 <h2 class="ticket-title">Danieladas</h2>
-                <p class="ticket-subtitle">🍦 Nevería Los Sabores</p>
-                <p class="ticket-info">Tel: 123-456-7890</p>
+                <p class="ticket-subtitle">🍦 Mis 3 Sabores</p>
+                <p class="ticket-info">Tel: 4498975425</p>
             </div>
             
             <div class="line"></div>
@@ -411,7 +411,8 @@
               scrollY: 0,
               scrollX: 0,
               windowHeight: ticketHeight + 50,
-              logging: false
+              logging: false,
+              allowTaint: true
             },
             jsPDF:        { 
               unit: 'mm', 
@@ -429,15 +430,35 @@
             
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-download"></i> Descargar Ticket';
+            
+            // Mostrar mensaje de éxito
+            Swal.fire({
+              icon: 'success',
+              title: '¡Descargado!',
+              text: 'El ticket se ha descargado correctamente',
+              timer: 2000,
+              showConfirmButton: false
+            });
           }).catch(err => {
-            console.error(err);
+            console.error('Error al generar PDF:', err);
             
             // Restaurar estilos en caso de error
             detallePedido.style.maxHeight = originalMaxHeight;
             detallePedido.style.overflow = originalOverflow;
             
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Error al descargar';
+            btn.innerHTML = '<i class="bi bi-download"></i> Descargar Ticket';
+            
+            // Mostrar error más informativo
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al descargar',
+              html: `
+                <p>No se pudo generar el PDF.</p>
+                <p class="small text-muted">Intenta tomar una captura de pantalla del ticket.</p>
+              `,
+              confirmButtonColor: '#e74282'
+            });
           });
         }, 300); // Esperar 300ms para que se renderice completamente
       });

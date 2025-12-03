@@ -1,4 +1,4 @@
-// const API = "http://192.168.1.72:4000";
+
 let usuarioActual = {};
 
 // ======================= PERFIL =======================
@@ -10,7 +10,7 @@ async function cargarPerfil() {
 
     const img = document.getElementById("fotoPerfil");
     img.src = data.foto
-      ? `${SERVER_URL}/uploads/usuarios/${data.foto}`
+      ? `${window.SERVER_BASE_URL}/uploads/usuarios/${data.foto}`
       : "img/usuario.png";
 
     document.getElementById("nombreUsuario").textContent = data.nombre;
@@ -32,7 +32,7 @@ function editarPerfil() {
 
   const img = document.getElementById("previewFoto");
   img.src = usuarioActual.foto
-    ? `${SERVER_URL}/uploads/usuarios/${usuarioActual.foto}`
+    ? `${window.SERVER_BASE_URL}/uploads/usuarios/${usuarioActual.foto}`
     : "img/usuario.png";
 
   new bootstrap.Modal('#modalEditarPerfil').show();

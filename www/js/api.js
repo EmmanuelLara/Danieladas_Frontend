@@ -1,6 +1,7 @@
 // ⚠️ Ajusta esta IP/puerto cuando cambie tu servidor
-const SERVER_URL = "http://192.168.1.72:4000";
-const API_URL = `${SERVER_URL}/api`;
+window.SERVER_BASE_URL = "https://basics-mixed-electronic-switches.trycloudflare.com";
+window.SERVER_URL = `${window.SERVER_BASE_URL}/api`;
+const API_URL = `${window.SERVER_URL}`;
 
 // Crea una sola instancia de axios y reutilízala
 const api = axios.create({
