@@ -24,29 +24,43 @@ function selectCategory(category) {
 }
 
 // Navegación inferior
+// Navegación inferior
+// Navegación inferior
 function navigateTo(page) {
-    document.querySelectorAll('.nav-link').forEach(btn => 
-        btn.classList.remove('active')
-    );
-
-    const button = document.querySelector(`.nav-link[data-page="${page}"]`);
-    if (button) button.classList.add('active');
-
-    switch(page) {
-        case 'inicio':
-            window.location.href = 'index.html';
-            break;
-        case 'productos':
-            window.location.href = 'productos.html';
-            break;
-        case 'carrito':
-            window.location.href = 'carrito.html';
-            break;
-        case 'cuenta':
-            window.location.href = 'perfil.html';
-            break;
+    if (page === 'inicio') {
+        window.location.href = 'index.html';
+    } else if (page === 'cuenta') {
+        window.location.href = 'perfil.html';
+    } else {
+        window.location.href = page + ".html";
     }
 }
+
+// Resaltar icono activo según la página actual
+document.addEventListener("DOMContentLoaded", () => {
+    const path = window.location.pathname;
+    const page = path.split("/").pop().replace(".html", "") || "index";
+    
+    // Mapeo de páginas a IDs de botones (data-page)
+    // index -> inicio
+    // productos, paletas, nachos, pasteles -> productos
+    // carrito -> carrito
+    // perfil, login, registro -> cuenta
+    
+    let activePage = "inicio";
+    
+    if (page === "index" || page === "") activePage = "inicio";
+    else if (["productos", "paletas", "nachos", "pasteles", "elegirContenedor", "sabores"].includes(page)) activePage = "productos";
+    else if (page === "carrito") activePage = "carrito";
+    else if (["perfil", "login", "registro", "admin", "vendedor", "ticket"].includes(page)) activePage = "cuenta";
+    
+    // Remover activos previos
+    document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+    
+    // Activar el correcto
+    const activeBtn = document.querySelector(`.nav-link[data-page="${activePage}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+});
 
 // Animación
 document.addEventListener('DOMContentLoaded', () => {
