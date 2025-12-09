@@ -18,6 +18,9 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
       font-family: Arial, sans-serif;
+      padding-bottom: 150px;
+      min-height: 100vh;
+      overflow-y: auto;
     }
     .card {
       border-radius: 15px;
@@ -29,6 +32,9 @@
     }
     .form-check-label {
       font-size: 16px;
+    }
+    .container {
+      padding-bottom: 150px;
     }
   </style>
 </head>
@@ -89,22 +95,22 @@
   </div>
   <nav class="bottom-navbar">
     <button class="nav-link" data-page="inicio" onclick="navigateTo('inicio')">
-        <i class="bi bi-house-door-fill"></i>
+        <span style="font-size: 1.4rem;">🏠</span>
         <span>Inicio</span>
     </button>
     
     <button class="nav-link" data-page="productos" onclick="navigateTo('productos')">
-         <span class="nav-icon-letter">P</span>
+        <span style="font-size: 1.4rem;">🍦</span>
         <span>Productos</span>
     </button>
     
     <button class="nav-link " data-page="carrito" onclick="navigateTo('carrito')">
-        <i class="bi bi-cart-fill"></i>
+        <span style="font-size: 1.4rem;">🛒</span>
         <span>Carrito</span>
     </button>
     
     <button class="nav-link" data-page="cuenta" onclick="navigateTo('cuenta')">
-        <i class="bi bi-person-fill"></i>
+        <span style="font-size: 1.4rem;">👤</span>
         <span>Cuenta</span>
     </button>
 </nav>

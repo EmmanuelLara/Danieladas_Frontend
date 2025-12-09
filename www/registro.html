@@ -93,6 +93,7 @@
 
     <input type="text" class="form-control" placeholder="Nombre completo" id="nombre" />
     <input type="email" class="form-control" placeholder="Correo electrónico" id="email" />
+    <input type="tel" class="form-control" placeholder="Número de teléfono" id="telefono" />
     <input type="password" class="form-control" placeholder="Contraseña" id="pass" />
     <input type="password" class="form-control" placeholder="Confirmar contraseña" id="confirmar" />
 
@@ -107,6 +108,7 @@
   function limpiarEstilos() {
   document.getElementById("nombre").style.border = "";
   document.getElementById("email").style.border = "";
+  document.getElementById("telefono").style.border = "";
   document.getElementById("pass").style.border = "";
   document.getElementById("confirmar").style.border = "";
 }
@@ -133,11 +135,13 @@ async function registrar() {
 
   const nombre = document.getElementById("nombre").value.trim();
   const email = document.getElementById("email").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
   const pass = document.getElementById("pass").value.trim();
   const confirmar = document.getElementById("confirmar").value.trim();
 
   const inputNombre = document.getElementById("nombre");
   const inputEmail = document.getElementById("email");
+  const inputTelefono = document.getElementById("telefono");
   const inputPass = document.getElementById("pass");
   const inputConfirmar = document.getElementById("confirmar");
 
@@ -148,6 +152,11 @@ async function registrar() {
 
   const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regexCorreo.test(email)) return marcarError(inputEmail, "Ingresa un correo válido.");
+
+  const regexTelefono = /^[0-9]{8,15}$/;
+  if (!regexTelefono.test(telefono.replace(/\D/g, ""))) {
+    return marcarError(inputTelefono, "Ingresa un teléfono válido (8 a 15 dígitos).");
+  }
 
   if (pass.length < 6)
     return marcarError(inputPass, "La contraseña debe tener al menos 6 caracteres.");
@@ -161,9 +170,13 @@ async function registrar() {
 
   try {
     // 1. REGISTRO
+    // Enviamos el teléfono limpio (solo números) para evitar errores 400
+    const telefonoLimpio = telefono.replace(/\D/g, "");
+
     await api.post("/registro", {
       nombre,
       email,
+      telefono: telefonoLimpio,
       pass
     });
 
@@ -188,11 +201,26 @@ async function registrar() {
 
   } catch (err) {
     console.error(err);
-    const msg = err.response?.data?.mensaje || "Error al registrar ❌";
+    
+    // Intentamos obtener el mensaje de error de varias formas comunes
+    let msg = "Error al registrar ❌";
+    
+    if (err.response && err.response.data) {
+        const data = err.response.data;
+        // Si el backend devuelve { mensaje: ... } o { error: ... } o { msg: ... }
+        msg = data.mensaje || data.error || data.msg || data.message || JSON.stringify(data);
+    } else if (err.message) {
+        msg = err.message;
+    }
+
+    // Detección específica para problemas de conexión
+    if (msg.includes("Network Error")) {
+        msg = "Error de conexión. Verifica que el servidor esté encendido.";
+    }
 
     Swal.fire({
       icon: "error",
-      title: "Error",
+      title: "Error " + (err.response ? err.response.status : ""),
       text: msg,
       background: "rgba(255, 255, 255, 0.9)",
       color: "#d63384",

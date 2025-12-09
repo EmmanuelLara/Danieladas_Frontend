@@ -129,6 +129,7 @@ connect-src * http: https:;
 
   <div class="user-info mt-3">
     <p id="correo"><i class="bi bi-envelope-fill text-danger"></i> Cargando...</p>
+      <p id="telefono"><i class="bi bi-telephone-fill text-danger"></i> Cargando...</p>
 
     <p id="registro"><i class="bi bi-calendar-heart text-danger"></i> Cargando...</p>
   </div>
@@ -147,19 +148,19 @@ connect-src * http: https:;
   <!-- NAVBAR -->
   <nav class="bottom-navbar">
     <button class="nav-link" data-page="inicio" onclick="navigateTo('inicio')">
-        <i class="bi bi-house-door-fill"></i>
+        <span style="font-size: 1.4rem;">🏠</span>
         <span>Inicio</span>
     </button>
     <button class="nav-link" data-page="productos" onclick="navigateTo('productos')">
-         <span class="nav-icon-letter">P</span>
+        <span style="font-size: 1.4rem;">🍦</span>
         <span>Productos</span>
     </button>
     <button class="nav-link" data-page="carrito" onclick="navigateTo('carrito')">
-        <i class="bi bi-cart-fill"></i>
+        <span style="font-size: 1.4rem;">🛒</span>
         <span>Carrito</span>
     </button>
     <button class="nav-link active" data-page="cuenta" onclick="navigateTo('cuenta')">
-        <i class="bi bi-person-fill"></i>
+        <span style="font-size: 1.4rem;">👤</span>
         <span>Cuenta</span>
     </button>
   </nav>
@@ -168,6 +169,7 @@ connect-src * http: https:;
   <script src="js/api.js"></script>
   <script src="js/proteger.js"></script>
   <script>verificarSesion();</script>
+  <script src="js/notificaciones.js"></script>
   <script src="js/main.js"></script>
   <script src="js/pedidosCliente.js"></script>
  
@@ -199,6 +201,11 @@ connect-src * http: https:;
           <div class="mb-3">
             <label class="form-label">Correo Electrónico</label>
             <input type="email" class="form-control" id="inputCorreo" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="inputTelefono" placeholder="Ej: 5512345678" required>
           </div>
 
 

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escanear QR - Danieladas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Librería html5-qrcode para escaneo QR -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #ff9fd6 0%, #e74282 100%);
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      padding: 20px 0;
+    }
+    .scanner-container {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .scanner-status {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 10px;
+      background: #f8f9fa;
+    }
+    #reader {
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #reader video {
+      border-radius: 15px;
+      width: 100%;
+      height: auto;
+    }
+    .btn-scan {
+      background: linear-gradient(135deg, #ff9fd6, #e74282);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 25px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin: 10px;
+      transition: all 0.3s;
+    }
+    .btn-scan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(231, 66, 130, 0.4);
+      color: white;
+    }
+    .btn-scan:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .instructions {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #856404;
+    }
+    .instructions i {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="scanner-container">
+      <h2 style="color: #e22b5a; margin-bottom: 20px;">
+        <i class="bi bi-qr-code-scan"></i> Escanear Código QR
+      </h2>
+      
+      <div class="scanner-status">
+        <p id="statusText" class="text-muted mb-0">Listo para escanear</p>
+      </div>
+
+      <div class="instructions" id="instructions">
+        <i class="bi bi-info-circle-fill text-warning"></i>
+        <p class="mb-0"><strong>Instrucciones:</strong></p>
+        <p class="mb-0 small">Haz clic en "Iniciar Escaneo" y apunta la cámara al código QR del ticket del cliente</p>
+      </div>
+      
+      <!-- Contenedor del escáner -->
+      <div id="reader" style="display: none;"></div>
+      
+      <div class="mt-3">
+        <button class="btn btn-scan" onclick="iniciarEscaneo()" id="btnIniciar">
+          <i class="bi bi-camera-video-fill"></i> Escáner en Vivo
+        </button>
+
+        <button class="btn btn-secondary" onclick="detenerEscaneo()" id="btnDetener" style="display: none;">
+          <i class="bi bi-stop-fill"></i> Detener
+        </button>
+      </div>
+      
+      <div class="mt-3">
+        <button class="btn btn-link text-danger" onclick="cerrarEscaneo()">
+          <i class="bi bi-x-circle"></i> Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="cordova.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/proteger.js"></script>
+  
+  <script>
+    let html5QrcodeScanner = null;
+    let escaneoActivo = false;
+    const esCordova = typeof window.cordova !== 'undefined';
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener("DOMContentLoaded", () => {
+      // Si estamos en Cordova, esperar deviceready
+      if (esCordova) {
+        document.addEventListener("deviceready", () => {
+          console.log("Cordova ready en escaner");
+          verificarSesion();
+          
+          // Intentar solicitar pre-permisos solo si NO es el plugin nativo
+          setTimeout(() => {
+              if (typeof cordova.plugins.settings !== 'undefined' || typeof cordova.plugins.permissions !== 'undefined') {
+                   solicitarPermisoCamara().catch(e => console.log("Permisos flow check:", e));
+              }
+          }, 500);
+        });
+      }
+    });
+
+    async function solicitarPermisoCamara() {
+      return new Promise((resolve, reject) => {
+        if (!esCordova) {
+          resolve(true); 
+          return;
+        }
+
+        const permissions = cordova.plugins.permissions;
+        if (!permissions) {
+            resolve(true); 
+            return;
+        }
+
+        permissions.checkPermission(permissions.CAMERA, function(status) {
+          if (status.hasPermission) {
+            resolve(true);
+          } else {
+            console.log("Solicitando permiso de cámara...");
+            permissions.requestPermission(permissions.CAMERA, function(status) {
+              if (status.hasPermission) {
+                resolve(true);
+              } else {
+                reject(new Error("Permiso denegado"));
+              }
+            }, function() {
+              reject(new Error("Error al solicitar permiso"));
+            });
+          }
+        }, function() {
+          reject(new Error("Error al verificar permiso"));
+        });
+      });
+    }
+
+    async function iniciarEscaneo() {
+      if (escaneoActivo) return;
+
+      // 1. INTENTO NATIVO (Mejor opción para Android/iOS)
+      // Requiere phonegap-plugin-barcodescanner
+      if (esCordova && typeof cordova !== 'undefined' && cordova.plugins && cordova.plugins.barcodeScanner) {
+          cordova.plugins.barcodeScanner.scan(
+              function (result) {
+                  if (!result.cancelled) {
+                      onScanSuccess(result.text);
+                  } else {
+                      // Cancelado
+                  }
+              },
+              function (error) {
+                  Swal.fire("Error", "Error en escáner nativo: " + error, "error");
+              },
+              {
+                  preferFrontCamera : false,
+                  showFlipCameraButton : true,
+                  showTorchButton : true,
+                  torchOn: false,
+                  saveHistory: false,
+                  prompt : "Coloca el código QR dentro del recuadro",
+                  resultDisplayDuration: 0,
+                  formats : "QR_CODE",
+                  orientation : "portrait"
+              }
+          );
+          return; // Salir, ya usamos el nativo
+      }
+
+      // 2. FALLBACK A WEB (HTML5-QRCODE)
+      try {
+        if (esCordova) {
+             console.log("Solicitando permisos para Web Scanner...");
+             try { 
+                 await solicitarPermisoCamara(); 
+             } catch(e) {
+                 console.warn("Permiso rechazado o error plugin:", e);
+             }
+        }
+
+        escaneoActivo = true;
+        document.getElementById("statusText").textContent = "Iniciando cámara...";
+        document.getElementById("btnIniciar").style.display = "none";
+
+        document.getElementById("btnDetener").style.display = "inline-block";
+        document.getElementById("reader").style.display = "block";
+        document.getElementById("instructions").style.display = "none";
+
+        // Asegurar instancia
+        if(!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+        }
+
+        // Configuración ajustada para móviles
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 }, 
+            aspectRatio: 1.0
+        };
+
+        // Intentar iniciar
+        await html5QrcodeScanner.start(
+          { facingMode: "environment" },
+          config,
+          onScanSuccess,
+          onScanError
+        );
+
+        document.getElementById("statusText").textContent = "Apunta al código QR";
+        document.getElementById("statusText").className = "text-success mb-0 fw-bold";
+
+      } catch (err) {
+        console.error("Error live scan:", err);
+        
+        let errorMsg = "No se pudo iniciar la cámara web.";
+        if (err.name === 'NotAllowedError') {
+             errorMsg = "Permiso denegado. Actívalo en Configuración.";
+        } else if (err.name === 'NotFoundError') {
+             errorMsg = "No se encontró cámara.";
+        } else if (err.message) {
+             errorMsg += " " + err.message;
+        }
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Cámara',
+          text: errorMsg,
+          confirmButtonColor: '#e74282'
+        });
+
+        resetearEscaner();
+      }
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      console.log("QR escaneado:", decodedText);
+      detenerEscaneo();
+      procesarQR(decodedText);
+    }
+
+    function onScanError(errorMessage) {
+      // Ignorar
+    }
+
+    async function detenerEscaneo() {
+      if (!escaneoActivo) return;
+
+      try {
+        if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+          await html5QrcodeScanner.stop();
+        }
+      } catch (err) {
+        console.error("Error al detener escáner:", err);
+      }
+
+      resetearEscaner();
+    }
+
+    function resetearEscaner() {
+      escaneoActivo = false;
+      document.getElementById("statusText").textContent = "Listo para escanear";
+      document.getElementById("statusText").className = "text-muted mb-0";
+      document.getElementById("btnIniciar").style.display = "inline-block";
+
+      document.getElementById("btnDetener").style.display = "none";
+      document.getElementById("reader").style.display = "none";
+      document.getElementById("instructions").style.display = "block";
+    }
+
+    function procesarQR(text) {
+      console.log("Procesando QR:", text);
+      document.getElementById("statusText").textContent = "Procesando QR...";
+      document.getElementById("statusText").className = "text-warning mb-0";
+      
+      let pedidoId = null;
+      
+      if (text.includes("entregar.html?id=") || text.includes("id=")) {
+        try {
+          let urlText = text;
+          if (!text.startsWith('http://') && !text.startsWith('https://') && !text.startsWith('file://')) {
+            if (text.startsWith('entregar.html')) {
+              urlText = 'https://dummy.com/' + text;
+            } else {
+              urlText = 'https://' + text;
+            }
+          }
+          const url = new URL(urlText);
+          pedidoId = url.searchParams.get("id");
+        } catch (e) {
+          const match = text.match(/[?&]id=([^&\s]+)/);
+          if (match) pedidoId = match[1];
+        }
+      } else {
+        pedidoId = text.trim();
+      }
+
+      if (pedidoId) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡QR Escaneado!',
+          html: `<p>Pedido ID: <strong>${pedidoId}</strong></p><p>Redirigiendo...</p>`,
+          timer: 1500,
+          showConfirmButton: false,
+          confirmButtonColor: '#e74282'
+        }).then(() => {
+          window.location.href = "entregar.html?id=" + pedidoId;
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'QR no válido',
+          html: `<p>El código escaneado no pertenece a un ticket válido.</p><p class="small text-muted">Texto: ${text}</p>`,
+          confirmButtonColor: '#e74282'
+        }).then(() => {
+          resetearEscaner();
+        });
+      }
+    }
+
+
+
+
+
+    function cerrarEscaneo() {
+      detenerEscaneo();
+      window.location.href = 'vendedor.html';
+    }
+
+    window.addEventListener('beforeunload', () => {
+      detenerEscaneo();
+    });
+
+    document.addEventListener('pause', () => {
+      detenerEscaneo();
+    });
+  </script>
+</body>
+</html>

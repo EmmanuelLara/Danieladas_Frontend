@@ -52,7 +52,9 @@ body {
 
 .container {
   padding-top: 10px !important;
-  padding-bottom: 100px !important;
+  padding-bottom: 150px !important;
+  min-height: 100vh;
+  overflow-y: auto;
 }
 
 .pastel-title {
@@ -67,7 +69,7 @@ body {
 
 /* Empuja el precio al final de la tarjeta para mantener alineación */
 .pastel-precio {
-  color: #ff7b86;
+  color: #e74282;
   font-weight: bold;
   margin-top: auto; /* Propiedad clave para empujar al final en Flexbox */
 }
@@ -78,7 +80,7 @@ body {
 
 <body>
   <div class="container py-4">
-    <h1 class="text-center mb-4 text-danger">🎂 Nuestros Pasteles</h1>
+    <h1 class="text-center mb-4" style="color: #e74282;">🎂 Nuestros Pasteles</h1>
     <p class="text-center text-muted">Elige el sabor que más te guste</p>
 
     <div class="row g-4" id="pasteles-list">
@@ -91,22 +93,22 @@ body {
 
 <nav class="bottom-navbar">
     <button class="nav-link" data-page="inicio" onclick="navigateTo('inicio')">
-        <i class="bi bi-house-door-fill"></i>
+        <span style="font-size: 1.4rem;">🏠</span>
         <span>Inicio</span>
     </button>
     
     <button class="nav-link" data-page="productos" onclick="navigateTo('productos')">
-        <span class="nav-icon-letter">P</span>
+        <span style="font-size: 1.4rem;">🍦</span>
         <span>Productos</span>
     </button>
     
     <button class="nav-link " data-page="carrito" onclick="navigateTo('carrito')">
-        <i class="bi bi-cart-fill"></i>
+        <span style="font-size: 1.4rem;">🛒</span>
         <span>Carrito</span>
     </button>
     
     <button class="nav-link" data-page="cuenta" onclick="navigateTo('cuenta')">
-        <i class="bi bi-person-fill"></i>
+        <span style="font-size: 1.4rem;">👤</span>
         <span>Cuenta</span>
     </button>
 </nav>

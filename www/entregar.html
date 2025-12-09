@@ -241,19 +241,17 @@ connect-src * http: https:;
         // Actualizar estado a "Entregado"
         await api.put(`/pedidos/${pedidoActual._id}/estado`, { estado: "Entregado" });
 
-        // Mostrar éxito
+        // Mostrar éxito y redirigir
         await Swal.fire({
           icon: 'success',
           title: '¡Pedido Entregado!',
-          text: 'El pedido ha sido marcado como entregado exitosamente.',
+          text: 'Redirigiendo...',
           confirmButtonColor: '#e74282',
-          timer: 2000
+          timer: 1000,
+          showConfirmButton: false
         });
 
-        // Actualizar el estado en la página
-        pedidoActual.estado = "Entregado";
-        document.getElementById("estado").textContent = "Entregado";
-        document.getElementById("estado").className = "badge bg-success";
+        window.location.href = "vendedor.html";
 
       } catch (error) {
         console.error(error);

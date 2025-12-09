@@ -230,7 +230,10 @@
             <button class="btn btn-pink mb-2" id="btnGuardar">
                 <i class="bi bi-download"></i> Descargar Ticket
             </button>
-            <button class="btn btn-outline-secondary" onclick="window.close()">
+            <button class="btn btn-outline-success mb-2" id="btnWhatsApp">
+                <i class="bi bi-whatsapp"></i> Enviar por WhatsApp
+            </button>
+            <button class="btn btn-outline-secondary" onclick="window.location.href='perfil.html'">
                 <i class="bi bi-x-circle"></i> Cerrar
             </button>
         </div>
@@ -242,8 +245,10 @@
         </div>
     </div>
 
-    <!-- Librería para generar PDF -->
+    <!-- Librerías para generar PDF e imagen -->
+    <script src="cordova.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -252,6 +257,13 @@
     <script src="js/proteger.js"></script>
     
     <script>
+      let isCordovaApp = false;
+
+      document.addEventListener('deviceready', () => {
+        isCordovaApp = true;
+        console.log("Cordova listo en ticket.html");
+      }, false);
+
       document.addEventListener("DOMContentLoaded", async () => {
         const params = new URLSearchParams(window.location.search);
         const ticketId = params.get("id");
@@ -266,27 +278,47 @@
         }
 
         try {
-          // Mostrar loading
           Swal.showLoading();
+          
+          let pedido = null;
+          let errores = [];
 
-          console.log("Solicitando ticket:", ticketId);
-          
-          // Obtener todos los pedidos del usuario
-          const response = await api.get(`/pedidos/mios`);
-          
-          console.log("Respuesta API:", response);
-          
-          // Buscar el pedido específico por ID
-          const pedidos = response.data;
-          const pedido = pedidos.find(p => p._id === ticketId);
+          // Intentar obtener por ID directo (Dueño/Admin/Vendedor)
+          try {
+            const res = await api.get(`/pedidos/${ticketId}`);
+            pedido = res.data;
+          } catch (e) {
+            errores.push("Direct ID: " + e.message);
+          }
 
-          // DEBUG: Mostrar lo que llegó
-          debugContent.textContent = JSON.stringify(pedido, null, 2);
-          // Descomenta la siguiente línea si quieres ver el debug siempre
-          // debugDiv.classList.remove("d-none");
+          // Fallback: Buscar en 'mis pedidos' (Cliente)
+          if (!pedido) {
+            try {
+                const res = await api.get('/pedidos/mios');
+                if (Array.isArray(res.data)) {
+                    pedido = res.data.find(p => p._id === ticketId);
+                }
+            } catch (e) {
+                errores.push("Mios: " + e.message);
+            }
+          }
+
+          // Fallback: Buscar en 'todos' (Vendedor/Admin)
+          if (!pedido) {
+            try {
+                const res = await api.get('/pedidos/todos');
+                if (Array.isArray(res.data)) {
+                    pedido = res.data.find(p => p._id === ticketId);
+                }
+            } catch (e) {
+                errores.push("Todos: " + e.message);
+            }
+          }
+
+          debugContent.textContent = JSON.stringify(pedido || { error: "No encontrado", intentos: errores }, null, 2);
 
           if (!pedido) {
-             throw new Error("Pedido no encontrado en tu lista de pedidos");
+             throw new Error("Pedido no encontrado. Verifica tus permisos o si el pedido existe.");
           }
 
           cargarTicket(pedido);
@@ -294,11 +326,14 @@
 
         } catch (error) {
           console.error(error);
-          Swal.fire("Error", "No se pudo cargar el pedido. Ver detalles abajo.", "error");
-          
-          // Mostrar debug info en caso de error
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo cargar el pedido. ' + (error.message || ''),
+            footer: '<small>Si eres vendedor, verifica tu conexión y sesión.</small>'
+          });
           debugDiv.classList.remove("d-none");
-          debugContent.textContent += "\n\nERROR: " + (error.message || JSON.stringify(error));
+          debugContent.textContent += "\n\nERROR FINAL: " + (error.message || JSON.stringify(error));
         }
       });
 
@@ -316,21 +351,13 @@
               const precio = Number(p.precio) || 0;
               const subtotal = precio * cantidad;
 
-              // Construir nombre del producto
               let nombreProducto = p.tipo || p.nombre || "Producto";
               if (p.tamano) nombreProducto += ` (${p.tamano})`;
 
-              // Construir detalles adicionales
               let detalles = [];
-              if (p.sabores && p.sabores.length > 0) {
-                detalles.push(`Sabores: ${p.sabores.join(", ")}`);
-              }
-              if (p.contenedor) {
-                detalles.push(`Contenedor: ${p.contenedor}`);
-              }
-              if (p.ingredientes && p.ingredientes.length > 0) {
-                detalles.push(`Ingredientes: ${p.ingredientes.join(", ")}`);
-              }
+              if (p.sabores && p.sabores.length > 0) detalles.push(`Sabores: ${p.sabores.join(", ")}`);
+              if (p.contenedor) detalles.push(`Contenedor: ${p.contenedor}`);
+              if (p.ingredientes && p.ingredientes.length > 0) detalles.push(`Ingredientes: ${p.ingredientes.join(", ")}`);
 
               html += `
                 <div class="item-row">
@@ -347,25 +374,21 @@
               `;
             });
         } else {
-            html = '<p class="text-center text-danger">No hay productos en este pedido</p>';
+            html = '<p class="text-center text-danger">No productos</p>';
         }
 
         detalle.innerHTML = html;
         document.getElementById("total").textContent = Number(pedido.total || 0).toFixed(2);
 
-        // QR - Contiene URL para que el vendedor marque como entregado
         const qrContainer = document.getElementById("qr");
         qrContainer.innerHTML = "";
         
-        // Construir URL que funcione en navegador y Cordova
         let baseUrl = window.location.origin;
         if (baseUrl.includes('file://')) {
-          // Si estamos en Cordova, usar la IP del servidor
-          baseUrl = API_URL.replace(':4000', '');
+          baseUrl = API_URL.replace('api', '').replace(/\/$/, ""); 
+          if (!baseUrl.includes('http')) baseUrl = "http://192.168.1.72:4000"; 
         }
         const qrUrl = `${baseUrl}/entregar.html?id=${pedido._id}`;
-        
-        console.log("QR URL:", qrUrl);
         
         new QRCode(qrContainer, {
           text: qrUrl,
@@ -377,91 +400,196 @@
         });
       }
 
-      // Descargar PDF
-      document.getElementById("btnGuardar").addEventListener("click", () => {
+      // --- LÓGICA DE DESCARGA Y COMPARTIR MEJORADA ---
+
+      async function getBlobFromTicket() {
         const element = document.getElementById("ticket");
-        const btn = document.getElementById("btnGuardar");
         const detallePedido = document.getElementById("detallePedido");
         
-        btn.disabled = true;
-        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
-        
-        // Guardar estilos originales
+        // Expandir momentáneamente para captura completa
         const originalMaxHeight = detallePedido.style.maxHeight;
         const originalOverflow = detallePedido.style.overflow;
-        
-        // Remover limitaciones de altura para capturar todo
         detallePedido.style.maxHeight = 'none';
         detallePedido.style.overflow = 'visible';
-        
-        // Esperar un momento para que se renderice
-        setTimeout(() => {
-          // Calcular altura dinámica basada en el contenido
-          const ticketHeight = element.scrollHeight;
-          const pdfHeight = Math.ceil(ticketHeight * 0.264583); // Conversión px a mm más precisa
-          
-          // Opciones optimizadas para ticket
-          const opt = {
-            margin:       [2, 2, 2, 2], // Márgenes pequeños
-            filename:     `Ticket_${document.getElementById("folio").textContent}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-              scale: 2, 
+
+        try {
+          const canvas = await html2canvas(element, {
+              scale: 2,
               useCORS: true,
-              scrollY: 0,
-              scrollX: 0,
-              windowHeight: ticketHeight + 50,
               logging: false,
+              backgroundColor: '#ffffff',
+              width: element.scrollWidth,
+              height: element.scrollHeight,
               allowTaint: true
-            },
-            jsPDF:        { 
-              unit: 'mm', 
-              format: [80, Math.max(150, pdfHeight)], // Altura dinámica, mínimo 150mm
-              orientation: 'portrait',
-              compress: true
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Evitar saltos de página
-          };
-          
-          html2pdf().set(opt).from(element).save().then(() => {
-            // Restaurar estilos originales
-            detallePedido.style.maxHeight = originalMaxHeight;
-            detallePedido.style.overflow = originalOverflow;
-            
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-download"></i> Descargar Ticket';
-            
-            // Mostrar mensaje de éxito
-            Swal.fire({
-              icon: 'success',
-              title: '¡Descargado!',
-              text: 'El ticket se ha descargado correctamente',
-              timer: 2000,
-              showConfirmButton: false
-            });
-          }).catch(err => {
-            console.error('Error al generar PDF:', err);
-            
-            // Restaurar estilos en caso de error
-            detallePedido.style.maxHeight = originalMaxHeight;
-            detallePedido.style.overflow = originalOverflow;
-            
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-download"></i> Descargar Ticket';
-            
-            // Mostrar error más informativo
-            Swal.fire({
-              icon: 'error',
-              title: 'Error al descargar',
-              html: `
-                <p>No se pudo generar el PDF.</p>
-                <p class="small text-muted">Intenta tomar una captura de pantalla del ticket.</p>
-              `,
-              confirmButtonColor: '#e74282'
-            });
           });
-        }, 300); // Esperar 300ms para que se renderice completamente
-      });
+          return new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+        } finally {
+          detallePedido.style.maxHeight = originalMaxHeight;
+          detallePedido.style.overflow = originalOverflow;
+        }
+      }
+
+      // GUARDAR / COMPARTIR (UNIFICADO PARA CORDOVA)
+      async function procesarTicket(accion) {
+        const btn = accion === 'descargar' ? document.getElementById("btnGuardar") : document.getElementById("btnWhatsApp");
+        const originalText = btn.innerHTML;
+        const folio = document.getElementById("folio").textContent || "TICKET";
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Procesando...';
+
+        try {
+          const blob = await getBlobFromTicket();
+
+          if (isCordovaApp) {
+            try {
+                const buffer = await blob.arrayBuffer();
+                const folio = document.getElementById("folio").textContent || "TICKET";
+                const fileName = `Ticket_${folio}.png`;
+                
+                // --- LÓGICA DIFERENCIADA: DESCARGAR (Galería/Downloads) vs WHATSAPP (Cache/Share) ---
+                
+                if (accion === 'descargar') {
+                    // Intenta guardar en la carpeta pública de Descargas (Android)
+                    const downloadDir = cordova.file.externalRootDirectory + "Download/";
+                    
+                    window.resolveLocalFileSystemURL(downloadDir, function (dirEntry) {
+                        dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+                            fileEntry.createWriter(function (fileWriter) {
+                                fileWriter.onwriteend = function () {
+                                    console.log("Guardado en Downloads:", fileEntry.nativeURL);
+                                    
+                                    // Notificar éxito
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Ticket Guardado!',
+                                        html: `Se guardó en tu carpeta de <b>Descargas</b>.<br><small>${fileName}</small>`,
+                                        confirmButtonText: 'Entendido',
+                                        confirmButtonColor: '#e74282'
+                                    });
+
+                                    // Intentar escanear para que aparezca en Galería (MediaScanner)
+                                    if (window.cordova.plugins.MediaScannerPlugin) {
+                                        window.cordova.plugins.MediaScannerPlugin.scanFile(fileEntry.nativeURL);
+                                    }
+                                    
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalText;
+                                };
+                                fileWriter.onerror = (e) => { 
+                                     throw new Error("Error escribiendo en Downloads: " + e.toString()); 
+                                };
+                                fileWriter.write(buffer);
+                            });
+                        }, (err) => { 
+                             console.error("Error creating file in Downloads", err);
+                             Swal.fire("Error", "No se pudo crear el archivo en Descargas. Verifica permisos de almacenamiento.", "error");
+                             btn.disabled = false;
+                             btn.innerHTML = originalText;
+                        });
+                    }, (err) => {
+                         // Fallback si no existe la carpeta Download (raro en Android)
+                         console.error("Error accessing Download dir", err);
+                         Swal.fire("Error", "No se encontró la carpeta de Descargas.", "error");
+                         btn.disabled = false;
+                         btn.innerHTML = originalText;
+                    });
+
+                } else {
+                    // --- WHATSAPP / COMPARTIR (Usa Cache Temporal) ---
+                    const storageDir = cordova.file.externalCacheDirectory || cordova.file.cacheDirectory;
+                    
+                    window.resolveLocalFileSystemURL(storageDir, function (dirEntry) {
+                        dirEntry.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
+                            fileEntry.createWriter(function (fileWriter) {
+                                fileWriter.onwriteend = function () {
+                                    console.log("Guardado temporal para share:", fileEntry.nativeURL);
+                                    
+                                    const options = {
+                                        message: `Ticket ${folio} - Danieladas`,
+                                        files: [fileEntry.nativeURL],
+                                        chooserTitle: 'Compartir Ticket'
+                                    };
+                                    
+                                    window.plugins.socialsharing.shareWithOptions(options, 
+                                        () => console.log('Compartido OK'), 
+                                        (err) => {
+                                            console.error("Error sharing:", err);
+                                            Swal.fire('Error', 'No se pudo compartir: ' + err, 'error');
+                                        }
+                                    );
+                                    
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalText;
+                                };
+                                fileWriter.onerror = (e) => { throw e; };
+                                fileWriter.write(buffer);
+                            });
+                        }, (err) => { throw err; });
+                    }, (err) => { throw err; });
+                }
+
+            } catch (cordovaErr) {
+                console.error(cordovaErr);
+                throw new Error("Error sistema de archivos: " + cordovaErr.message);
+            }
+
+
+          } else {
+            // VERSIÓN WEB (No Cordova)
+            if (accion === 'whatsapp') {
+                 if (navigator.share && navigator.canShare) {
+                    const file = new File([blob], `Ticket_${folio}.png`, { type: 'image/png' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            title: `Ticket ${folio}`,
+                            text: 'Gracias por tu compra',
+                            files: [file]
+                        });
+                    } else {
+                        throw new Error("El navegador no soporta compartir este archivo.");
+                    }
+                 } else {
+                     // Fallback simple si no hay Web Share API
+                     Swal.fire('Info', 'Funcionalidad completa en App Móvil. En web solo se descarga.', 'info');
+                     const url = URL.createObjectURL(blob);
+                     const a = document.createElement('a');
+                     a.href = url;
+                     a.download = `Ticket_${folio}.png`;
+                     document.body.appendChild(a);
+                     a.click();
+                     document.body.removeChild(a);
+                 }
+            } else {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Ticket_${folio}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Descargado',
+                    text: 'El ticket se ha descargado.',
+                    timer: 2000
+                });
+            }
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+
+        } catch (err) {
+          console.error(err);
+          Swal.fire("Error", "Ocurrió un error: " + err.message, "error");
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      }
+
+      document.getElementById("btnGuardar").addEventListener("click", () => procesarTicket('descargar'));
+      document.getElementById("btnWhatsApp").addEventListener("click", () => procesarTicket('whatsapp'));
     </script>
   </body>
 </html>
