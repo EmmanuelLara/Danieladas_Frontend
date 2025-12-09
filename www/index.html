@@ -51,37 +51,39 @@
             </h3>
 
             <div class="offers-grid">
-                <div class="offer-card bg-pink animate-in" style="animation-delay: 0.1s">
+                <!-- 2x1 Paletas -->
+                <div class="offer-card bg-pink animate-in" style="animation-delay: 0.1s; cursor: pointer;" onclick="window.location.href='paletas.html'">
                     <div class="card-content">
                         <h4 class="card-title">2x1 Paletas</h4>
                         <p class="card-text">Fines de semana</p>
                     </div>
                 </div>
 
-                <div class="offer-card bg-warning animate-in" style="animation-delay: 0.2s">
-                    <div class="card-content">
-                        <h4 class="card-title">Canasta Gratis</h4>
-                        <p class="card-text">En compras mayores a $200</p>
-                    </div>
-                </div>
-
-                <div class="offer-card bg-blue animate-in" style="animation-delay: 0.3s">
+                <!-- Descuento Paletas 10% -->
+                <div class="offer-card bg-blue animate-in" style="animation-delay: 0.3s; cursor: pointer;" onclick="window.location.href='paletas.html'">
                     <div class="card-content">
                         <h4 class="card-title">10% de descuento en paletas</h4>
                         <p class="card-text">Lunes</p>
                     </div>
                 </div>
+            </div>
 
-                <div class="offer-card bg-green animate-in" style="animation-delay: 0.4s">
-                    <div class="card-content">
-                        <h4 class="card-title">Nachos + Canasta</h4>
-                        <p class="card-text">Combo especial $100</p>
-                    </div>
+            <!-- Sobre Nosotros -->
+            <div class="info-card animate-in" style="animation-delay: 0.5s">
+                <div class="card-content">
+                    <h4 class="info-title">
+                        <i class="bi bi-heart-fill"></i> Sobre Nosotros
+                    </h4>
+                    <p class="info-text">
+                        En <strong>Danieladas</strong> nos apasiona crear sonrisas congeladas. 
+                        Elaboramos nuestras nieves y paletas de forma artesanal, utilizando únicamente frutas naturales y los ingredientes más frescos. 
+                        ¡Una tradición de sabor hecha con amor para ti!
+                    </p>
                 </div>
             </div>
 
             <!-- Info -->
-            <div class="info-card animate-in" style="animation-delay: 0.5s">
+            <div class="info-card animate-in" style="animation-delay: 0.6s">
                 <div class="card-content">
                     <h4 class="info-title">
                         <i class="bi bi-info-circle"></i> Información
@@ -132,6 +134,7 @@
 <script src="js/api.js"></script>
 <script src="js/proteger.js"></script>
 <script src="js/notificaciones.js"></script>
+<script src="js/promociones.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         verificarSesion(); // <--- PROTECCIÓN AGREGADA

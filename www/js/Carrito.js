@@ -1,11 +1,20 @@
 document.addEventListener("DOMContentLoaded", cargarCarrito);
 
+// 🛒 Cargar carrito
 function cargarCarrito() {
   const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
   const vacio = document.getElementById("carrito-vacio");
   const contenido = document.getElementById("carrito-contenido");
   const items = document.getElementById("carrito-items");
   const totalPrecio = document.getElementById("total-precio");
+
+  // FECHA ACTUAL PARA PROMOS AUTOMÁTICAS
+  const hoy = new Date();
+  const diaSemana = hoy.getDay(); // 0: Domingo, 1: Lunes, ... 6: Sábado
+  
+  // Reglas de Fechas
+  const esFinDeSemana = (diaSemana === 0 || diaSemana === 6);
+  const esLunes = (diaSemana === 1);
 
   if (carrito.length === 0) {
     vacio.style.display = "block";
@@ -18,11 +27,24 @@ function cargarCarrito() {
 
   items.innerHTML = "";
   let total = 0;
-
+  
+  // Variables para lógica de promos
+  let contadorPaletas = 0;
+  let montoPaletas = 0;
+  
   carrito.forEach((p, i) => {
     const cantidad = p.cantidad || 1;
     const subtotal = p.precio * cantidad;
     total += subtotal;
+
+    // Detectar paletas (asegurar que el tipo o nombre contenga 'paleta')
+    const esPaleta = (p.tipo && p.tipo.toLowerCase().includes('paleta')) || 
+                     (p.nombre && p.nombre.toLowerCase().includes('paleta'));
+
+    if (esPaleta) {
+        contadorPaletas += cantidad;
+        montoPaletas += subtotal;
+    }
 
     let descripcion = "";
 
@@ -63,7 +85,46 @@ function cargarCarrito() {
     `;
   });
 
-  totalPrecio.textContent = `$${total.toFixed(2)}`;
+  // --- CÁLCULO AUTOMÁTICO DE DESCUENTOS ---
+  let descuento = 0;
+  let mensajePromo = "";
+  let mensajePromoExtra = "";
+
+  // 1. Promo 2x1 Fines de Semana
+  if (esFinDeSemana && contadorPaletas >= 2) {
+      const gratis = Math.floor(contadorPaletas / 2);
+      // Calculamos precio promedio para el descuento
+      const precioPromedio = contadorPaletas > 0 ? (montoPaletas / contadorPaletas) : 0;
+      descuento += gratis * precioPromedio;
+      mensajePromo = `¡2x1 Fin de Semana! (${gratis} gratis)`;
+  } 
+  
+  // 2. Promo Lunes 10%
+  if (esLunes && montoPaletas > 0) {
+      // Nota: Si ya se aplicó otra promo a paletas, decidir si se acumula. 
+      // Por simplicidad, aquí aplicamos si es lunes. (Ojo: 2x1 y 10% no suelen solaparse por días)
+      const descLunes = montoPaletas * 0.10;
+      descuento += descLunes;
+      mensajePromo = "¡10% desc. Lunes Paletero!";
+  }
+  
+  
+  // 3. (Eliminado) Canasta Gratis > $200
+  // if (total >= 200) { ... }
+
+  // Renderizar Totales
+  // Evitar negativos
+  if (descuento > total) descuento = total;
+  const totalFinal = total - descuento;
+  
+  let htmlTotal = "";
+  if (descuento > 0) {
+      htmlTotal += `<div class="text-muted text-decoration-line-through small">$${total.toFixed(2)}</div>`;
+      htmlTotal += `<div class="text-success small mb-1">${mensajePromo} (-$${descuento.toFixed(2)})</div>`;
+  }
+  htmlTotal += `$${totalFinal.toFixed(2)}`;
+
+  totalPrecio.innerHTML = htmlTotal;
 }
 
 // 🔁 Actualizar cantidad
