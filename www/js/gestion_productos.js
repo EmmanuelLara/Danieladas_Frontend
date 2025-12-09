@@ -59,7 +59,7 @@ function renderizarProductos() {
         } else if (currentTab === 'pasteles') {
             // Usar ruta de uploads del servidor
             if (p.imagen) {
-                 imgUrl = `${window.SERVER_BASE_URL}/uploads/${p.imagen}`;
+                 imgUrl = `${window.SERVER_BASE_URL}/uploads/pasteles/${p.imagen}`;
             }
         } else {
             // Otros

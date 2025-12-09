@@ -20,11 +20,12 @@ async function cargarUsuarios() {
             tr.innerHTML = `
                 <td>${u.nombre}</td>
                 <td>${u.email}</td>
+                <td>${u.telefono || '-'}</td>
                 <td>
                     <span class="badge ${getBadgeClass(u.rol)}">${u.rol.toUpperCase()}</span>
                 </td>
                 <td class="text-center">
-                    <i class="fas fa-edit action-btn btn-edit" onclick="editarUsuario('${u._id}', '${u.nombre}', '${u.email}', '${u.rol}')"></i>
+                    <i class="fas fa-edit action-btn btn-edit" onclick="editarUsuario('${u._id}', '${u.nombre}', '${u.email}', '${u.telefono || ''}', '${u.rol}')"></i>
                     <i class="fas fa-trash-alt action-btn btn-delete" onclick="eliminarUsuario('${u._id}')"></i>
                 </td>
             `;
@@ -49,6 +50,7 @@ function abrirModal() {
     document.getElementById("userId").value = "";
     document.getElementById("nombre").value = "";
     document.getElementById("email").value = "";
+    document.getElementById("telefono").value = "";
     document.getElementById("password").value = "";
     document.getElementById("rol").value = "cliente";
     
@@ -61,10 +63,11 @@ function abrirModal() {
     modalUsuario.show();
 }
 
-function editarUsuario(id, nombre, email, rol) {
+function editarUsuario(id, nombre, email, telefono, rol) {
     document.getElementById("userId").value = id;
     document.getElementById("nombre").value = nombre;
     document.getElementById("email").value = email;
+    document.getElementById("telefono").value = telefono || "";
     document.getElementById("password").value = ""; // No mostrar password
     document.getElementById("rol").value = rol;
 
@@ -81,6 +84,7 @@ async function guardarUsuario() {
     const id = document.getElementById("userId").value;
     const nombre = document.getElementById("nombre").value;
     const email = document.getElementById("email").value;
+    const telefono = document.getElementById("telefono").value;
     const password = document.getElementById("password").value;
     const rol = document.getElementById("rol").value;
 
@@ -88,7 +92,7 @@ async function guardarUsuario() {
         return Swal.fire("Atención", "Nombre y correo son obligatorios", "warning");
     }
 
-    const data = { nombre, email, rol };
+    const data = { nombre, email, telefono, rol };
     if (password) data.pass = password; // Solo enviar si se escribió algo
 
     try {

@@ -181,6 +181,15 @@ async function finalizarCompra() {
 
     const idPedido = respuesta._id || respuesta.pedido?._id || respuesta.id;
 
+    // Limpiar el carrito INMEDIATAMENTE después de crear el pedido exitosamente
+    // Esto evita que el usuario pueda regresar y ver los productos en el carrito
+    localStorage.removeItem("carrito");
+    
+    // Notificar que se creó el pedido (para notificaciones push)
+    if (typeof notificarPedidoCreado !== 'undefined') {
+      notificarPedidoCreado(respuesta);
+    }
+
     // Éxito
     await Swal.fire({
       icon: 'success',
@@ -197,8 +206,7 @@ async function finalizarCompra() {
       confirmButtonText: 'Ir a Mis Pedidos'
     });
 
-    // Limpiar y redirigir
-    localStorage.removeItem("carrito");
+    // Redirigir a perfil (mis pedidos)
     window.location.href = "perfil.html";
 
   } catch (err) {

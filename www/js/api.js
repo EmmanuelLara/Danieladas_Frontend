@@ -1,5 +1,5 @@
 // ⚠️ Ajusta esta IP/puerto cuando cambie tu servidor
-window.SERVER_BASE_URL = "https://basics-mixed-electronic-switches.trycloudflare.com";
+window.SERVER_BASE_URL = "https://tape-restricted-foundation-discharge.trycloudflare.com";
 window.SERVER_URL = `${window.SERVER_BASE_URL}/api`;
 const API_URL = `${window.SERVER_URL}`;
 

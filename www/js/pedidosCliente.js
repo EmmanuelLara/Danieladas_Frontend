@@ -17,6 +17,8 @@ async function cargarPerfil() {
     document.getElementById("username").textContent = "@" + (data.usuario || "usuario");
     document.getElementById("correo").innerHTML =
       `<i class="bi bi-envelope-fill text-danger"></i> ${data.correo}`;
+    document.getElementById("telefono").innerHTML =
+      `<i class="bi bi-telephone-fill text-danger"></i> ${data.telefono || 'Sin teléfono'}`;
     document.getElementById("registro").innerHTML =
       `<i class="bi bi-calendar-heart text-danger"></i> Cliente desde: ${data.fechaRegistro?.split("T")[0]}`;
   } catch (err) {
@@ -28,6 +30,7 @@ async function cargarPerfil() {
 function editarPerfil() {
   document.getElementById("inputNombre").value = usuarioActual.nombre || "";
   document.getElementById("inputCorreo").value = usuarioActual.correo || "";
+  document.getElementById("inputTelefono").value = usuarioActual.telefono || "";
   document.getElementById("inputPass").value = "";
 
   const img = document.getElementById("previewFoto");
@@ -50,12 +53,14 @@ async function guardarPerfil() {
   try {
     const inputNombre = document.getElementById("inputNombre");
     const inputCorreo = document.getElementById("inputCorreo");
+    const inputTelefono = document.getElementById("inputTelefono");
     const inputPass = document.getElementById("inputPass");
     const inputFoto = document.getElementById("inputFoto");
 
     const formData = new FormData();
     formData.append("nombre", inputNombre.value);
-    formData.append("correo", inputCorreo.value);
+    formData.append("email", inputCorreo.value);
+    formData.append("telefono", inputTelefono.value);
 
     if (inputPass.value) formData.append("pass", inputPass.value);
     if (inputFoto.files[0]) formData.append("foto", inputFoto.files[0]);
