@@ -141,4 +141,32 @@ async function eliminarUsuario(id) {
     }
 }
 
+// ==========================================
+// CONFIRMACIÓN DE SALIDA
+// ==========================================
+function confirmarSalida() {
+    Swal.fire({
+        title: '¿Qué deseas hacer?',
+        text: "Elige una opción para salir del panel de administración.",
+        icon: 'question',
+     
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-sign-out-alt"></i> Cerrar Sesión',
+
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // CERRAR SESIÓN COMPLETA
+            if (typeof cerrarSesion === 'function') {
+                cerrarSesion();
+            } else {
+                // Fallback si no está cargado proteger.js
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                window.location.href = "login.html";
+            }
+        }
+    });
+}
+
 

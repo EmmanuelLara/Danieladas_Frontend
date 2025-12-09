@@ -424,3 +424,29 @@ const actualizarEstadoPedido = async (id, estado) => {
 function verPedidoCompleto(pedidoId) {
     window.location.href = `ticket-vendedor.html?id=${pedidoId}`;
 }
+
+// ==========================================
+// CONFIRMACIÓN DE SALIDA
+// ==========================================
+function confirmarSalida() {
+    Swal.fire({
+        title: '¿Qué deseas hacer?',
+        text: "¿Estás seguro de que quieres cerrar tu sesión de vendedor?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-sign-out-alt"></i> Cerrar Sesión',
+        confirmButtonColor: '#dc3545',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // CERRAR SESIÓN COMPLETA
+            if (typeof cerrarSesion === 'function') {
+                cerrarSesion();
+            } else {
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                window.location.href = "login.html";
+            }
+        }
+    });
+}
